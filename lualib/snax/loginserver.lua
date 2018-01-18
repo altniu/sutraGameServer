@@ -47,40 +47,63 @@ local function write(service, fd, text)
 	assert_socket(service, socket.write(fd, text), fd)
 end
 
-local function launch_slave(auth_handler)
+local function launch_slave(auth_handler, register_handler)
 	local function auth(fd, addr)
 		-- set socket buffer limit (8K)
 		-- If the attacker send large package, close the socket
 		socket.limit(fd, 8192)
 
-		local challenge = crypt.randomkey()
-		write("auth", fd, crypt.base64encode(challenge).."\n")
+		local opcode = assert_socket("auth", socket.readline(fd), fd)
+		opcode = crypt.base64decode(opcode)
+		print("auth.recv.opcode:" .. opcode)
+		if opcode == "r" then
+			local regmsg = assert_socket("auth", socket.readline(fd), fd)
+			local _, ok, code =  pcall(register_handler,crypt.base64decode(regmsg))
+			return _ and ok, code
+			
+		elseif opcode == "l" then
+			local challenge = crypt.randomkey()
+			print("challenge", challenge)
+			write("auth", fd, crypt.base64encode(challenge).."\n")
 
-		local handshake = assert_socket("auth", socket.readline(fd), fd)
-		local clientkey = crypt.base64decode(handshake)
-		if #clientkey ~= 8 then
-			error "Invalid client key"
+			local handshake = assert_socket("auth", socket.readline(fd), fd)
+			local clientkey = crypt.base64decode(handshake)
+			if #clientkey ~= 8 then
+				error "Invalid client key"
+			end
+			print("clientkey", clientkey)
+			
+			local serverkey = crypt.randomkey()
+			serverkey = crypt.dhexchange(serverkey)
+			print("serverkey", serverkey)
+			write("auth", fd, crypt.base64encode(serverkey).."\n")
+
+			local secret = crypt.dhsecret(clientkey, serverkey)			
+			print("secret", secret)
+
+			local response = assert_socket("auth", socket.readline(fd), fd)
+			response = crypt.base64decode(response)
+			print("client response", response)
+			local hmac = crypt.hmac64(challenge, secret)
+			print("hmac", hmac)
+			if hmac ~= response then
+				print "200 challenge failed"
+				return false, 200
+			else
+				write("auth", fd, crypt.base64encode("0") .. "\n")
+			end
+			
+			local etoken = assert_socket("auth", socket.readline(fd),fd)
+
+			local token = crypt.desdecode(secret, crypt.base64decode(etoken))
+			local _, ok, uid =  pcall(auth_handler,token)
+			ok = _ and ok
+			local resc = ok and 0 or 300
+			
+			return ok, resc, uid
 		end
-		local serverkey = crypt.randomkey()
-		write("auth", fd, crypt.base64encode(crypt.dhexchange(serverkey)).."\n")
-
-		local secret = crypt.dhsecret(clientkey, serverkey)
-
-		local response = assert_socket("auth", socket.readline(fd), fd)
-		local hmac = crypt.hmac64(challenge, secret)
-
-		if hmac ~= crypt.base64decode(response) then
-			write("auth", fd, "400 Bad Request\n")
-			error "challenge failed"
-		end
-
-		local etoken = assert_socket("auth", socket.readline(fd),fd)
-
-		local token = crypt.desdecode(secret, crypt.base64decode(etoken))
-
-		local ok, server, uid =  pcall(auth_handler,token)
-
-		return ok, server, uid, secret
+		
+		return false, 404
 	end
 
 	local function ret_pack(ok, err, ...)
@@ -117,36 +140,13 @@ local user_login = {}
 
 local function accept(conf, s, fd, addr)
 	-- call slave auth
-	local ok, server, uid, secret = skynet.call(s, "lua",  fd, addr)
-	-- slave will accept(start) fd, so we can write to fd later
-
-	if not ok then
-		if ok ~= nil then
-			write("response 401", fd, "401 Unauthorized\n")
-		end
-		error(server)
-	end
-
-	if not conf.multilogin then
-		if user_login[uid] then
-			write("response 406", fd, "406 Not Acceptable\n")
-			error(string.format("User %s is already login", uid))
-		end
-
-		user_login[uid] = true
-	end
-
-	local ok, err = pcall(conf.login_handler, server, uid, secret)
-	-- unlock login
-	user_login[uid] = nil
-
-	if ok then
-		err = err or ""
-		write("response 200",fd,  "200 "..crypt.base64encode(err).."\n")
-	else
-		write("response 403",fd,  "403 Forbidden\n")
-		error(err)
-	end
+	local ok, code, data = skynet.call(s, "lua",  fd, addr)
+	print("*******", ok, code, data)
+	local msg = code .. "," .. (data or "")
+	
+	write("accept result", fd, crypt.base64encode(msg).."\n")
+	
+	return ok, code
 end
 
 local function launch_master(conf)
@@ -189,12 +189,14 @@ local function login(conf)
 		local loginmaster = skynet.localname(name)
 		if loginmaster then
 			local auth_handler = assert(conf.auth_handler)
+			local register_handler = assert(conf.reg_handler)
 			launch_master = nil
 			conf = nil
-			launch_slave(auth_handler)
+			launch_slave(auth_handler, register_handler)
 		else
 			launch_slave = nil
 			conf.auth_handler = nil
+			conf.reg_handler = nil
 			assert(conf.login_handler)
 			assert(conf.command_handler)
 			skynet.register(name)

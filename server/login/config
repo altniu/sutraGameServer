@@ -1,0 +1,13 @@
+root = "./"
+thread = 8
+logger = nil
+harbor = 3
+address = "127.0.0.1:2528"
+master = "127.0.0.1:2016"
+start = "main_login"	-- main script
+bootstrap = "snlua bootstrap"	-- The service for bootstrap
+luaservice = root.."server/login/?.lua;"..root.."service/?.lua;"..root.."server/?.lua"
+lualoader = "lualib/loader.lua"
+snax = root.."server/?.lua;"..root.."server/login/?.lua"
+cpath = root.."cservice/?.so"
+-- daemon = "./skynet.pid"

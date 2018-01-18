@@ -1,0 +1,15 @@
+root = "./"
+thread = 8
+logger = nil
+harbor = 4
+address = "127.0.0.1:2529"
+master = "127.0.0.1:2016"
+start = "main_game"	-- main script
+bootstrap = "snlua bootstrap"	-- The service for bootstrap
+luaservice = root.."server/game/?.lua;"..root.."service/?.lua;"..root.."test/?.lua;"..root.."server/?.lua"
+lualoader = "lualib/loader.lua"
+-- preload = "./examples/preload.lua"	-- run preload.lua before every lua service run
+snax = root.."server/game/?.lua;"..root.."test/?.lua;"..root.."server/?.lua"
+-- snax_interface_g = "snax_g"
+cpath = root.."cservice/?.so"
+-- daemon = "./skynet.pid"

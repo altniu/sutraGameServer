@@ -1,0 +1,28 @@
+root password : yu123
+
+安装：
+sudo apt-get install mysql-client
+sudo apt-get install mysql-server
+
+
+
+mysql -u root -p
+show databases;
+create database db;
+drop database db;--删除数据库
+use db;
+show tables;
+
+mysql> create table playerData(
+    -> uid int(32) not null auto_increment primary key,
+    -> coin integer,
+    -> level integer,
+    -> score integer,
+    -> gold integer,
+    -> name varchar(32)
+    -> ) charset=gb2312;
+
+
+insert into playerData values(1000000000,0,0,0,0,'rootname');
+update userCollect set maxUserID=1000000001 where maxUserID=1000000000;
+delete from playerData where uid='1000000015';

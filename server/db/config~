@@ -1,0 +1,15 @@
+root = "./"
+thread = 8
+logger = "userlog"
+logservice = "snlua"
+logpath = "."
+address = "127.0.0.1:2527"
+master = "127.0.0.1:2015"
+harbor = 2
+start = "main_db"	-- main script
+bootstrap = "snlua bootstrap"	-- The service for bootstrap
+luaservice = root.."server/db/?.lua;"..root.."service/?.lua;"..root.."server/?.lua"
+lualoader = "lualib/loader.lua"
+snax = root.."server/?.lua;"..root.."server/db/?.lua"
+cpath = root.."cservice/?.so"
+-- daemon = "./skynet.pid"
