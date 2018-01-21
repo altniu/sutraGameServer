@@ -1,6 +1,6 @@
 local skynet = require "skynet"
 require "skynet.manager"    -- import skynet.register
-local mysql = require "mysql"
+local mysql = require "skynet.db.mysql"
 local db = nil
 
 require "functions"
@@ -73,34 +73,31 @@ local function test3(db)
     end
 end
 
+--lua对象深度拷贝
+function DeepCopy(object)
+    local lookup_table = {}
+    local function _copy(object)
+        if type(object) ~= "table" then
+            return object
+        elseif lookup_table[object] then
+            return lookup_table[object]
+        end
+        local new_table = {}
+        lookup_table[object] = new_table
+        for index, value in pairs(object) do
+            new_table[_copy(index)] = _copy(value)
+        end
+        return setmetatable(new_table, getmetatable(object))
+    end
+    return _copy(object)
+end
 
 local userIDSerial = 0
-local table_user = "user"
-local table_userCollect = "userCollect"
-local table_playerdata = "playerData"
+local tbl_monthCollect = "monthCollect"
+local tbl_userBaseData = "userBaseData"
 local CMD = setmetatable({}, { __gc = function() netpack.clear(queue) end })
 
-local function getMaxUserID()
-	if userIDSerial <= 0 then
-		local sql = "select * from " .. table_userCollect
-		local d = 1000000000
-		res = db:query(sql)
-		for k,v in pairs(res) do
-				d = tonumber(v["maxUserID"] or d)
-				break
-		end
-		userIDSerial = d
-	end
-	return userIDSerial
-end
-local function updateMaxUserID(uid)
-	if uid > userIDSerial then
-		local old = userIDSerial
-		userIDSerial = uid
-		local sql = "update " .. table_userCollect .. " set maxUserID=" .. userIDSerial .." where maxUserID=" .. old
-		db:query(sql)
-	end
-end
+
 
 function CMD.open( source, conf )
 end
@@ -108,76 +105,59 @@ end
 function CMD.close()
 end
 
-function CMD.getuid(name, userpassward)
-	if not name or 
-	not userpassward or 
-		"string" ~= type(name) or 
-			"string" ~= type(userpassward) then 
-			return 0 
+function CMD.getUserBaseData(uuid)
+	if not uuid or "string" ~= type(uuid) then 
+		return false
 	end
-
-	local sql = "select * from " .. table_user .. " where name = \'" .. name .. "\'"
+	
+	local sql = "select * from " .. tbl_userBaseData .. " where uuid = \'" .. uuid .. "\'"
 	res = db:query(sql)
-	local userid = 0
+	local data = nil
 	for k,v in pairs(res) do
-		if v["passward"] == userpassward then
-			userid = tonumber(v["uid"])
-			break
-		else
-			userid = -1
+		if v["uuid"] == uuid then
+			data = DeepCopy(v)
 			break
 		end
-	end
-	return userid
-end
-function CMD.register(name, userpassward)
-	if not name or 
-	not userpassward or 
-	"string" ~= type(name) or 
-	"string" ~= type(userpassward) then 
-		return false 
-	end
-
-	local sql = "select * from " .. table_user .. " where name = \'" .. name .. "\'"
-	res = db:query(sql)
-	
-	local userid = 0
-	for k,v in pairs(res) do
-		if v["name"] == name then
-			userid = v["uid"]
-			break
-		end
-	end
-	if userid > 0 then
-		print("player user id already exist. ", name)
-		return false, 300
-	end
-
-	local  uid = getMaxUserID() + 1
-	sql = "insert into "..table_user.." values('" .. uid .. "','"..name.."','"..userpassward.."');"
-	db:query(sql)
-
-	updateMaxUserID(uid)
-	print("new user register："..name..", "..userpassward.."，serialid："..getMaxUserID())
-
-	sql = "insert into "..table_playerdata.." values('" .. uid .. "','0','0','0','0','" .. name .. "');"
-	db:query(sql)
-	return true, 0
-end
-
-function CMD.getPlayerData(uid)
-	if not uid or "number" ~= type(uid)  then return  "" end
-	
-	local sql = "select * from " .. table_playerdata .. " where uid = \'" .. uid .. "\'"
-	res = db:query(sql)
-
-	local data = {uid=0,coin=0,level=0,score=0,gold=0,name=""}
-	
-	for k,v in pairs(res) do
-		data = v
-		break
 	end
 	return data
+end
+
+function CMD.getUserMonthCollect(uuid)
+	if not uuid or "string" ~= type(uuid) then 
+		return false
+	end
+	
+	local sql = "select * from " .. tbl_monthCollect .. " where uuid = \'" .. uuid .. "\'"
+	res = db:query(sql)
+	local data = {}
+	for k,v in pairs(res) do
+		if v["uuid"] == uuid then
+			data = DeepCopy(v)
+			break
+		end
+	end
+	return data
+end
+
+
+function CMD.register(uuid, phone, userData)
+	if not uuid or "string" ~= type(uuid) then 
+		return false
+	end
+
+	print("new user ："..uuid)
+
+	--uuid, registerTime, signNum, censerNum, sutraNum, jingtuGroup, lotusNum, phoneType, userData
+	local sql = string.format("insert into %s values('%s', '%ld', '%d', %d', '%d', '%s', '%s');", 
+				tbl_userBaseData, uuid, os.time(), 0, 0, 0, "", 0, phone or "", userData or "")
+	db:query(sql)
+	
+	--uuid, signLine, mouth, fohaoGroup
+	sql = string.format("insert into %s values('%s','%d', '%d', '%s');", 
+				tbl_monthCollect, uuid, 0, 0, "")
+	db:query(sql)
+	
+	return true
 end
 
 skynet.start(function()
@@ -191,9 +171,9 @@ skynet.start(function()
 	db=mysql.connect({
 		host="127.0.0.1",
 		port=3306,
-		database="DoudizhuDB",
+		database="sutraGameDB",
 		user="root",
-		password="yu",
+		password="sutraGame",
 		max_packet_size = 1024 * 1024,
 		on_connect = on_connect
 	})

@@ -14,102 +14,64 @@ local packMsg
 
 local CMD = {}
 local REQUEST = {}
-local m_inRoom = false
 
-local STATE = {unready=1, ready=2, playing=3}
-local m_player_info = {
-	name = "",
-	gold = 0,
-	level = 0,
-	icon = 0,
-	state = STATE.unready,
-	site = 0,
-	agent = nil,
-	fd = 0,
-	uid = 0
+
+
+local STATE = {}
+--uuid, registerTime, signNum, censerNum, sutraNum, jingtuNum, lotusNum, phoneType, userData
+local playerInfo = {
+	uuid = "",
+	totalRank = 0,
+	registerTime = 0,
+	signNum = 0,
+	censerNum = 0,
+	sutraNum = 0,
+	jingtuGroup = "",
+	lotusNum = 0,
+	phoneType = "",
+	signLine = 0,
+	mouth = 0,
+	fohaoGroup = "",
+	first = false,
 }
-local m_roomID = nil
-local m_roomAgent = nil
-local m_roomLevel = 0
+
 
 function REQUEST:totalPush()
-	local r = skynet.call("db_service", "lua", "getPlayerData", self.uid)
-	local res = { code=0, coin=r.coin, level  = r.level, score = r.score, gold = r.gold, name = r.name }
-	m_player_info.uid = self.uid
-	m_player_info.name = res.name
-	m_player_info.gold = res.gold
+	local r = skynet.call("db_service", "lua", "getUserBaseData", self.uuid)
+	if r then
+		--uuid, registerTime, signNum, censerNum, sutraNum, jingtuGroup, lotusNum, phoneType, userData
+		playerInfo.uuid = r.uuid
+		playerInfo.registerTime = r.registerTime
+		playerInfo.signNum = r.signNum
+		playerInfo.censerNum = r.censerNum
+		playerInfo.sutraNum = r.sutraNum
+		playerInfo.jingtuGroup = r.jingtuGroup
+		playerInfo.lotusNum = r.lotusNum
+		playerInfo.phoneType = r.phoneType
+	end
+	
+	r = skynet.call("db_service", "lua", "getUserMonthCollect", self.uuid)
+	if r then
+		--signLine, mouth, fohaoGroup
+		playerInfo.signLine = r.signLine
+		playerInfo.mouth = r.mouth
+		playerInfo.fohaoGroup = r.fohaoGroup
+	end
+	
 	return res
 end
 
-function REQUEST:enterRoom()
-	local roomAgent, roomID, site, otherPlayers = skynet.call(game_root, "lua", "playerEnterRoom", self.level, m_player_info)
-	m_roomID = roomID
-	m_roomAgent  = roomAgent
-	m_roomLevel = self.level
-	
-  	m_player_info.site = site
-  	m_player_info.state = STATE.unready
-  
-	print("player enter room, roomid="..roomID..",site="..site..",playerCount="..#otherPlayers)
-
-	local res = {}
-	res.roomID = roomID
-	
-  	for i=1,3 do
-		res["p_gold_"..i] = 0
-		res["p_icon_"..i] = 0
-		res["p_name_"..i] = 0
-		res["p_site_"..i] = 0
-		res["p_state_"..i] = 0
-		res["p_uid_"..i] = 0
+function REQUEST:updateUserData()
+	if not playerInfo[self.type] then
+		return {errCode = 1, desc = "cant find this type : " .. self.type}
 	end
-  
-  	local index = 1
-	for k,v in pairs(otherPlayers) do
-		res["p_gold_"..index] = v.gold
-		res["p_icon_"..index] = v.icon
-		res["p_name_"..index] = v.name
-		res["p_site_"..index] = v.site
-		res["p_state_"..index] = v.state
-		res["p_uid_"..index] = v.uid
-		index=index+1
-	end
-	return res
+	
+	playerInfo[self.type] = self.data
+	return {errCode = 0, desc = ""}
 end
 
-function REQUEST:ready()
-  if self.uid ~= m_player_info.uid then
-    return {code=100}
-  end
-  
-  skynet.call(m_roomAgent, "lua", "playerReady", m_roomID, m_player_info.uid, self.ready)
-  m_player_info.state = self.ready and STATE.ready or STATE.unready
-  
-  return {code=0}
-end
 
-function REQUEST:selfPayPoke()
-	print("agent player pay pokes:", self.pokes)
-	local code, pokeType = skynet.call(m_roomAgent, "lua", "playerPayPoke", m_player_info.site, self.pokes)
-	return {code = code or 2}
-end
 
-function REQUEST:exitRoom()
-	local code = skynet.call(game_root, "lua", "playerExitRoom", m_player_info.site, m_roomLevel, m_roomID, m_player_info.state == STATE.playing)
-	m_player_info.site = 0
-	m_player_info.state = STATE.unready
-	m_roomAgent = nil
-end
-
-function REQUEST:selfJiaodizhu()
-	print("agent.selfJiaodizhu.value", self.value)
-	skynet.call(m_roomAgent, "lua", "playerJiaodizhu", m_player_info.site, self.value == 0)
-end
-
-function REQUEST:selfQiangdizhu()
-	print("agent.selfQiangdizhu.value", self.value)
-	skynet.call(m_roomAgent, "lua", "playerQiangdizhu", m_player_info.site, self.value == 0)
-end
 
 function REQUEST:quit()
 	skynet.call(WATCHDOG, "lua", "close", m_player_info.fd)
@@ -155,44 +117,10 @@ skynet.register_protocol {
 	end
 }
 
-function CMD.readyNotify(uid, isready)
-	send_package(packMsg("playerReady", {uid=uid, isready=isready}))
+function CMD.pushUserData(type, data)
+	send_package(packMsg("pushUserData", {type=type, data=data}))
 end
 
-function CMD.startGameNotify(pokes, secretPokes, jiaodizhuSite)
-	m_player_info.state = STATE.playing
-	print("m_player_info.state", m_player_info.state)
-	send_package(packMsg("startGame", {pokes=pokes, secretpokes=secretPokes, jiaodizhuSite=jiaodizhuSite}))
-end
-
-function CMD.jiaodizhuNotify(site, isjiaodizhu)
-	print("agent.jiaodizhuNotify.site.isjaodizhu", site, isjiaodizhu)
-	send_package(packMsg("jiaodizhu", {site=site, isjiaodizhu=isjiaodizhu and "0" or "1"}))
-end
-
-function CMD.qiangdizhuNotify(site, isqiangdizhu)
-	send_package(packMsg("qiangdizhu", {site=site, isqiangdizhu=isqiangdizhu and "0" or "1"}))
-end
-
-function CMD.payPokeNotify(site, pokes, roundWinSite)
-	send_package(packMsg("payPoke", {site=site, pokes=pokes, roundWinSite=roundWinSite}))
-end
-
-
-function CMD.playerEnterRoomNotify(playerInfo)
-	send_package(packMsg("playerEnterRoom", {p_name=playerInfo.name, p_gold=playerInfo.gold, p_icon=playerInfo.icon, p_site=playerInfo.site, p_uid=playerInfo.site, p_uid=playerInfo.uid} ) )
-end
-function CMD.playerExitRoomNotify(site)
-	m_player_info.state = STATE.unready--游戏期间有玩家退出即宣告gameover
-	send_package(packMsg("playerExitRoom", {site=site}))
-end
-function CMD.gameOverNotify(winSite, score)
-	m_player_info.state = TATE.unready
-	send_package(packMsg("gameOver", {winSite=winSite, score=score}))
-end
-function CMD.startPayPokeNotify(dizhuSite)
-	send_package(packMsg("startPayPoke", {dizhuSite=dizhuSite}))
-end
 
 
 
@@ -209,14 +137,14 @@ function CMD.start(conf)
 	host = sprotoloader.load(1):host "package"
 	packMsg = host:attach(sprotoloader.load(2))
   
-  --[[
+  
 	skynet.fork(function()
 		while true do
-			--send_package(packMsg "heartbeat")
+			send_package(packMsg "heartbeat")
 			skynet.sleep(500)
 		end
 	end)
-  --]]
+  
 	skynet.call(gate, "lua", "forward", fd)
 end
 

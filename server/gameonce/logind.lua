@@ -8,7 +8,7 @@ require "skynet.manager"
 --require "functions"
 
 local server = {
-	host = "192.168.220.128",
+	host = "47.91.176.170",
 	port = 8001,
 	multilogin = false,	-- disallow multilogin
 	name = "login_master",
@@ -21,16 +21,17 @@ local user_online = {}
 function server.auth_handler(token)
 	print("server.auth_handler.token:" .. token)
 	-- the token is base64(user)@base64(server):base64(password)
-	local user, password = token:match("([^@]+)@([^:]+)")
-	user = crypt.base64decode(user)
-	password = crypt.base64decode(password)
+	local uuid, phone = token:match("([^@]+)@([^:]+)")
+	uuid = crypt.base64decode(uuid)
+	phone = crypt.base64decode(phone)
 	
-	local uid = skynet.call("db_service", "lua", "getuid", user, password)
-	if uid > 0 then
-		print("user login success, user = " .. user .. ", uid = " .. uid)
+	local data = skynet.call("db_service", "lua", "getUserBaseData", uuid)
+	if data then
+		print("user login, uuid = " .. uuid)
 		--local last = user_online[uid]
 		datacenter.set("user_online_list", uid, true)
-		return true, uid
+		
+		return true
 	end
 	return false
 end
