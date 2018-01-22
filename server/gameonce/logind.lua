@@ -29,11 +29,13 @@ function server.auth_handler(token)
 	if data then
 		print("user login, uuid = " .. uuid)
 		--local last = user_online[uid]
-		datacenter.set("user_online_list", uid, true)
-		
-		return true
+		datacenter.set("user_online_list", uid, true)		
+	
+	else
+		print("new user login, uuid = " .. uuid .. ", phone = " .. phone)
+		skynet.call("db_service", "lua", "register", uuid, phone)
 	end
-	return false
+	return true
 end
 
 function server.reg_handler(userdata)
