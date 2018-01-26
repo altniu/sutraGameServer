@@ -3,7 +3,7 @@ require "skynet.manager"    -- import skynet.register
 local mysql = require "skynet.db.mysql"
 local db = nil
 
-require "functions"
+
 
 local function dump(obj)
     local getIndent, quoteStr, wrapKey, wrapVal, dumpObj
