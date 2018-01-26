@@ -122,6 +122,13 @@ function CMD.getUserBaseData(uuid)
 	return data
 end
 
+function CMD.updateUserBaseData(uuid, key, value)
+	local sql = "update " .. tbl_userBaseData .. " set " .. key .. " = \'" .. value .. "\'" .. " where uuid = \'" .. uuid .. "\'"
+	res = db:query(sql)
+	
+	return res and true or false
+end
+
 function CMD.getUserMonthCollect(uuid)
 	if not uuid or "string" ~= type(uuid) then 
 		return false
@@ -139,6 +146,13 @@ function CMD.getUserMonthCollect(uuid)
 	return data
 end
 
+function CMD.updateMonthCollect(uuid, key, value)
+	local sql = "update " .. tbl_monthCollect .. " set " .. key .. " = \'" .. value .. "\'" .. " where uuid = \'" .. uuid .. "\'"
+	res = db:query(sql)
+	
+	return res and true or false
+end
+
 
 function CMD.register(uuid, phone, userData)
 	if not uuid or "string" ~= type(uuid) then 
@@ -148,7 +162,7 @@ function CMD.register(uuid, phone, userData)
 	print("new user ："..uuid)
 
 	--uuid, registerTime, signNum, censerNum, sutraNum, jingtuGroup, lotusNum, phoneType, userData
-	local sql = string.format("insert into %s values('%s', '%ld', '%d', %d', '%d', '%s', '%s');", 
+	local sql = string.format("insert into %s values('%s', '%ld', '%d', %d', '%d', '%s', '%d', '%s', '%s');", 
 				tbl_userBaseData, uuid, os.time(), 0, 0, 0, "", 0, phone or "", userData or "")
 	db:query(sql)
 	
