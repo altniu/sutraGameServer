@@ -1,7 +1,7 @@
 local skynet = require "skynet"
 require "skynet.manager"
-local netpack = require "netpack"
-local datacenter = require "datacenter"
+local netpack = require "skynet.netpack"
+local datacenter = require "skynet.datacenter"
 --local CMD = setmetatable({}, { __gc = function() netpack.clear(queue) end })
 local CMD = {}
 local max_people = 3

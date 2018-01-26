@@ -8,5 +8,5 @@ luaservice = root.."server/gameonce/?.lua;" .. root .. "server/gameonce/game/?.l
 lualoader = "lualib/loader.lua"
 snax = root.."server/?.lua;"..root.."server/gameonce/?.lua"
 cpath = root.."cservice/?.so"
-lua_path = root.."server/gameonce/game/?.lua"
+lua_path = root.."lualib/?.lua;"..root.."lualib/?/init.lua;"..root.."server/gameonce/game/?.lua"
 -- daemon = "./skynet.pid"
