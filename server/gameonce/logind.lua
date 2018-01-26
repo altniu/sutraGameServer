@@ -1,7 +1,7 @@
 local login = require "snax.loginserver"
-local crypt = require "crypt"
+local crypt = require "skynet.crypt"
 local skynet = require "skynet"
-local datacenter = require "datacenter"
+local datacenter = require "skynet.datacenter"
 require "functions"
 
 require "skynet.manager"
