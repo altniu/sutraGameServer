@@ -1,7 +1,7 @@
-drop table monthCollect;
+use sutraGameDB;
 create table monthCollect
 	(
-	uuid char(64) not null auto_increment primary key,
+	uuid char(64) not null  primary key,
 	signLine int not null,
 	month int not null,
 	fohaoGroup varchar(64),

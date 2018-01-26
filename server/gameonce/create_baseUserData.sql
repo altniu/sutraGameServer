@@ -1,7 +1,7 @@
-drop table userBaseData;
+use  sutraGameDB;
 create table userBaseData
     (
-    uuid char(64) not null auto_increment primary key,
+    uuid char(64) not null primary key,
     registerTime long not null,
     signNum int not null,
     censerNum int not null,
