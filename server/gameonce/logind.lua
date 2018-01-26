@@ -44,7 +44,7 @@ function server.reg_handler(userdata)
 	local r, code = skynet.call("db_service", "lua", "register", user, password)
 	return r, code
 end
---[[
+
 function server.login_handler(server, uid, secret)
 	print(string.format("%s@%s is login, secret is %s", uid, server, crypt.hexencode(secret)))
 	--local gameserver = assert(server_list[server], "Unknown server")
@@ -66,7 +66,7 @@ end
 function server.registered_handler()
 	return ""
 end
---]]
+
 local CMD = {}
 
 function CMD.register_gate(server, address)
