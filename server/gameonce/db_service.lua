@@ -173,7 +173,7 @@ skynet.start(function()
 		port=3306,
 		database="sutraGameDB",
 		user="root",
-		password="sutraGame",
+		password="root",
 		max_packet_size = 1024 * 1024,
 		on_connect = on_connect
 	})
