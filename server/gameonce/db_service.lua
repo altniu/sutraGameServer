@@ -163,7 +163,8 @@ function CMD.register(uuid, phone, userData)
 	local res
 	
 	--uuid, registerTime, signNum, censerNum, sutraNum, jingtuGroup, lotusNum, phoneType, userData
-	local sql = string.format("insert into %s values('%s', '%d', '%d', %d', '%d', '%s', '%d', '%s', '%s');", 
+	local sql = string.format([[insert into %s(uuid, registerTime, signNum, censerNum, sutraNum, jingtuGroup, lotusNum, phoneType, userData) 
+								values('%s', %d, %d, %d, %d, '%s', %d, '%s', '%s');]], 
 				tbl_userBaseData, uuid, os.time(), 0, 0, 0, "", 0, phone or "", userData or "")
 	print(sql)
 	
@@ -171,7 +172,7 @@ function CMD.register(uuid, phone, userData)
 	dump(res)
 	
 	--uuid, signLine, mouth, fohaoGroup
-	sql = string.format("insert into %s values('%s','%d', '%d', '%s');", 
+	sql = string.format("insert into %s(uuid, signLine, mouth, fohaoGroup) values('%s',%d, %d, '%s');", 
 				tbl_monthCollect, uuid, 0, 0, "")
 	print(sql)
 	
