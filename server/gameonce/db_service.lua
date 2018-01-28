@@ -2,7 +2,7 @@ local skynet = require "skynet"
 require "skynet.manager"    -- import skynet.register
 local mysql = require "skynet.db.mysql"
 local db = nil
-
+local serviceName = "db_service"
 
 
 local function dump(obj)
@@ -113,6 +113,10 @@ function CMD.getUserBaseData(uuid)
 	local sql = "select * from " .. tbl_userBaseData .. " where uuid = \'" .. uuid .. "\'"
 	print(sql)
 	res = db:query(sql)
+	if not res then
+		print(serviceName .. ",getUserBaseData uuid = " .. uuid .. " error")
+		return false
+	end
 	
 	local data = nil
 	for k,v in pairs(res) do
@@ -127,6 +131,10 @@ end
 function CMD.updateUserBaseData(uuid, key, value)
 	local sql = "update " .. tbl_userBaseData .. " set " .. key .. " = \'" .. value .. "\'" .. " where uuid = \'" .. uuid .. "\'"
 	res = db:query(sql)
+	if not res then
+		print(serviceName .. ",updateUserBaseData uuid = " .. uuid .. " error")
+		return false
+	end
 	
 	return res and true or false
 end
@@ -138,6 +146,11 @@ function CMD.getUserMonthCollect(uuid)
 	
 	local sql = "select * from " .. tbl_monthCollect .. " where uuid = \'" .. uuid .. "\'"
 	res = db:query(sql)
+	if not res then
+		print(serviceName .. ",getUserMonthCollect uuid = " .. uuid .. " error")
+		return false
+	end
+	
 	local data = {}
 	for k,v in pairs(res) do
 		if v["uuid"] == uuid then
@@ -151,6 +164,10 @@ end
 function CMD.updateMonthCollect(uuid, key, value)
 	local sql = "update " .. tbl_monthCollect .. " set " .. key .. " = \'" .. value .. "\'" .. " where uuid = \'" .. uuid .. "\'"
 	res = db:query(sql)
+	if not res then
+		print(serviceName .. ",updateMonthCollect uuid = " .. uuid .. " error")
+		return false
+	end
 	
 	return res and true or false
 end
@@ -171,8 +188,10 @@ function CMD.register(uuid, phone, userData)
 	print(sql)
 	
 	res = db:query(sql)
-	print(type(res))
-	dump(res)
+	if not res then
+		print(serviceName .. ",register uuid = " .. uuid .. " error")
+		return false
+	end
 	
 	--uuid, signLine, mouth, fohaoGroup
 	sql = string.format("insert into %s(uuid, signLine, mouth, fohaoGroup) values('%s',%d, %d, '%s');", 
@@ -180,7 +199,11 @@ function CMD.register(uuid, phone, userData)
 	print(sql)
 	
 	res = db:query(sql)
-	dump(res)
+	if not res then
+		print(serviceName .. ",register uuid = " .. uuid .. " error")
+		return false
+	end
+	
 	return true
 end
 
@@ -249,5 +272,5 @@ skynet.start(function()
 
 	--db:disconnect()
 	--skynet.exit()
-    skynet.register("db_service")
+    skynet.register(serviceName)
 end)

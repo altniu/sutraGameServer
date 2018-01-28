@@ -1,7 +1,7 @@
 local login = require "snax.loginserver"
 local crypt = require "skynet.crypt"
 local skynet = require "skynet"
-local datacenter = require "skynet.datacenter"
+--local datacenter = require "skynet.datacenter"
 require "functions"
 
 require "skynet.manager"
@@ -16,7 +16,8 @@ local server = {
 
 local server_list = {}
 local user_online = {}
-
+local user_cacheTable = {}
+--datacenter.set("user_online_list", uid, true)
 
 function server.auth_handler(token)
 	print("server.auth_handler.token:" .. token)
@@ -25,16 +26,21 @@ function server.auth_handler(token)
 	uuid = crypt.base64decode(uuid)
 	phone = crypt.base64decode(phone)
 	
+	if user_cacheTable[uuid] then
+		print("user login, uuid = " .. uuid)
+		return true
+	end
+	
 	local data = skynet.call("db_service", "lua", "getUserBaseData", uuid)
 	if data then
 		print("user login, uuid = " .. uuid)
-		--local last = user_online[uid]
-		datacenter.set("user_online_list", uid, true)		
 	
 	else
 		print("new user login, uuid = " .. uuid .. ",size=" .. string.len(uuid) .. ", phone = " .. phone)
 		skynet.call("db_service", "lua", "register", uuid, phone)
 	end
+	user_cacheTable[uuid] = true
+	
 	return true
 end
 

@@ -19,7 +19,7 @@ end
 
 
 function init()
-	datacenter.set("serial_id", "room_id", 1)
+	
 end
 
 skynet.start(function()
