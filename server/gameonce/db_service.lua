@@ -160,17 +160,23 @@ function CMD.register(uuid, phone, userData)
 	end
 
 	print("new user ："..uuid .. ", size=" .. string.len(uuid))
-
+	local res
+	
 	--uuid, registerTime, signNum, censerNum, sutraNum, jingtuGroup, lotusNum, phoneType, userData
 	local sql = string.format("insert into %s values('%s', '%d', '%d', %d', '%d', '%s', '%d', '%s', '%s');", 
 				tbl_userBaseData, uuid, os.time(), 0, 0, 0, "", 0, phone or "", userData or "")
-	db:query(sql)
+	print(sql)
+	
+	res = db:query(sql)
+	dump(res)
 	
 	--uuid, signLine, mouth, fohaoGroup
 	sql = string.format("insert into %s values('%s','%d', '%d', '%s');", 
 				tbl_monthCollect, uuid, 0, 0, "")
-	db:query(sql)
+	print(sql)
 	
+	res = db:query(sql)
+	dump(res)
 	return true
 end
 
