@@ -15,10 +15,10 @@ local packMsg
 local CMD = {}
 local REQUEST = {}
 
-
-
 local STATE = {}
---uuid, registerTime, signNum, censerNum, sutraNum, jingtuNum, lotusNum, phoneType, userData
+local fd = nil
+local agent = nil
+
 local pinfo = {
 	uuid = "",
 	totalRank = 0,
@@ -82,7 +82,7 @@ end
 
 
 function REQUEST:quit()
-	skynet.call(WATCHDOG, "lua", "close", m_player_info.fd)
+	skynet.call(WATCHDOG, "lua", "close", fd)
 end
 
 local function request(name, args, response)
@@ -97,7 +97,7 @@ end
 
 local function send_package(pack)
 	local package = string.pack(">s2", pack)
-	socket.write(m_player_info.fd, package)
+	socket.write(fd, package)
 end
 
 skynet.register_protocol {
@@ -138,8 +138,8 @@ function CMD.start(conf)
 	local gate = conf.gate
 	game_root = conf.gameRoot
 	WATCHDOG = conf.watchdog
-	m_player_info.fd = fd
-	m_player_info.agent = skynet.self()
+	fd = fd
+	agent = skynet.self()
 	
 	-- slot 1,2 set at main.lua
 	host = sprotoloader.load(1):host "package"
@@ -158,12 +158,8 @@ end
 
 function CMD.disconnect()
 	-- todo: do something before exit
-	if m_player_info.state ~= 0 and m_roomAgent then
-		skynet.call(game_root, "lua", "playerExitRoom", m_player_info.site, m_roomLevel, m_roomID, m_player_info.state == STATE.playing)
-	end
-
-	if m_player_info.uid > 0 then
-		local r = skynet.call("loginserver", "lua", "logOut", m_player_info.uid)
+	if pinfo.uid > 0 then
+		local r = skynet.call("loginserver", "lua", "logOut", pinfo.uid)
 	end
 	skynet.exit()
 end
