@@ -136,7 +136,6 @@ local function launch_slave(auth_handler, register_handler)
 	end)
 end
 
-local user_login = {}
 
 local function accept(conf, s, fd, addr)
 	-- call slave auth

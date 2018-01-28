@@ -1,9 +1,9 @@
 local skynet = require "skynet"
-local netpack = require "netpack"
-local socket = require "socket"
+local netpack = require "skynet.netpack"
+local socket = require "skynet.socket"
 local sproto = require "sproto"
 local sprotoloader = require "sprotoloader"
-local datacenter = require "datacenter"
+local datacenter = require "skynet.datacenter"
 require "functions"
 --local sproto_core = require "sproto.core"
 
