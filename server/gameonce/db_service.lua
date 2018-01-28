@@ -111,7 +111,9 @@ function CMD.getUserBaseData(uuid)
 	end
 	
 	local sql = "select * from " .. tbl_userBaseData .. " where uuid = \'" .. uuid .. "\'"
+	print(sql)
 	res = db:query(sql)
+	
 	local data = nil
 	for k,v in pairs(res) do
 		if v["uuid"] == uuid then
@@ -169,6 +171,7 @@ function CMD.register(uuid, phone, userData)
 	print(sql)
 	
 	res = db:query(sql)
+	print(type(res))
 	dump(res)
 	
 	--uuid, signLine, mouth, fohaoGroup
