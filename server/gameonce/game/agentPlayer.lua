@@ -134,11 +134,10 @@ end
 
 
 function CMD.start(conf)
-	local fd = conf.client
+	fd = conf.client
 	local gate = conf.gate
 	game_root = conf.gameRoot
 	WATCHDOG = conf.watchdog
-	fd = fd
 	agent = skynet.self()
 	
 	-- slot 1,2 set at main.lua
