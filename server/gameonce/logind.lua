@@ -83,12 +83,13 @@ function CMD.register_gate(server, address)
 	--print("r:" .. r)
 end
 
-function CMD.logOut(uid)
-	local u = user_online[uid]
+function CMD.logOut(uuid)
+	print("logind: logout uuid="..uuid)
+	local u = user_online[uuid]
 	if u then
-		print(string.format("%s@%s is logout", uid, u.server))
-		user_online[uid] = nil
-		datacenter.set("user_online", uid, nil)
+		print(string.format("%s@%s is logout", uuid, u.server))
+		user_online[uuid] = nil
+		datacenter.set("user_online", uuid, nil)
 	end
 end
 

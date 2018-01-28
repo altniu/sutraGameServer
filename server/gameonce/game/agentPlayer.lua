@@ -148,7 +148,7 @@ function CMD.start(conf)
 	skynet.fork(function()
 		while true do
 			send_package(packMsg "heartbeat")
-			skynet.sleep(500)
+			skynet.sleep(1500)
 		end
 	end)
   
@@ -157,8 +157,8 @@ end
 
 function CMD.disconnect()
 	-- todo: do something before exit
-	if pinfo.uid > 0 then
-		local r = skynet.call("loginserver", "lua", "logOut", pinfo.uid)
+	if pinfo.uuid ~= "" then
+		local r = skynet.call("loginserver", "lua", "logOut", pinfo.uuid)
 	end
 	skynet.exit()
 end
