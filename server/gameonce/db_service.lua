@@ -162,6 +162,7 @@ function CMD.register(uuid, phone, userData)
 	print("new user ："..uuid .. ", size=" .. string.len(uuid))
 	local res
 	
+	
 	--uuid, registerTime, signNum, censerNum, sutraNum, jingtuGroup, lotusNum, phoneType, userData
 	local sql = string.format([[insert into %s(uuid, registerTime, signNum, censerNum, sutraNum, jingtuGroup, lotusNum, phoneType, userData) 
 								values('%s', %d, %d, %d, %d, '%s', %d, '%s', '%s');]], 
