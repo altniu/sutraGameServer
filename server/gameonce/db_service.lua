@@ -159,7 +159,7 @@ function CMD.register(uuid, phone, userData)
 		return false
 	end
 
-	print("new user ："..uuid)
+	print("new user ："..uuid .. ", size=" .. string.len(uuid))
 
 	--uuid, registerTime, signNum, censerNum, sutraNum, jingtuGroup, lotusNum, phoneType, userData
 	local sql = string.format("insert into %s values('%s', '%ld', '%d', %d', '%d', '%s', '%d', '%s', '%s');", 

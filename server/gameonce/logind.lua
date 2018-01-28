@@ -32,7 +32,7 @@ function server.auth_handler(token)
 		datacenter.set("user_online_list", uid, true)		
 	
 	else
-		print("new user login, uuid = " .. uuid .. ", phone = " .. phone)
+		print("new user login, uuid = " .. uuid .. ",size=" .. string.len(uuid) .. ", phone = " .. phone)
 		skynet.call("db_service", "lua", "register", uuid, phone)
 	end
 	return true
