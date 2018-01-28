@@ -3,7 +3,7 @@ local skynet = require "skynet"
 local socket = require "socket"
 local sproto = require "sproto"
 local sprotoloader = require "sprotoloader"
-local datacenter = require "datacenter"
+local datacenter = require "skynet.datacenter"
 require "functions"
 --local sproto_core = require "sproto.core"
 
@@ -19,7 +19,7 @@ local REQUEST = {}
 
 local STATE = {}
 --uuid, registerTime, signNum, censerNum, sutraNum, jingtuNum, lotusNum, phoneType, userData
-local playerInfo = {
+local pinfo = {
 	uuid = "",
 	totalRank = 0,
 	registerTime = 0,
@@ -38,35 +38,43 @@ local playerInfo = {
 
 function REQUEST:totalPush()
 	local r = skynet.call("db_service", "lua", "getUserBaseData", self.uuid)
+	print("REQUEST:totalPush", r)
 	if r then
 		--uuid, registerTime, signNum, censerNum, sutraNum, jingtuGroup, lotusNum, phoneType, userData
-		playerInfo.uuid = r.uuid
-		playerInfo.registerTime = r.registerTime
-		playerInfo.signNum = r.signNum
-		playerInfo.censerNum = r.censerNum
-		playerInfo.sutraNum = r.sutraNum
-		playerInfo.jingtuGroup = r.jingtuGroup
-		playerInfo.lotusNum = r.lotusNum
-		playerInfo.phoneType = r.phoneType
+		pinfo.uuid = r.uuid
+		pinfo.registerTime = r.registerTime
+		pinfo.totalRank = r.signNum
+		pinfo.signNum = r.signNum
+		pinfo.censerNum = r.censerNum
+		pinfo.sutraNum = r.sutraNum
+		pinfo.jingtuGroup = r.jingtuGroup
+		pinfo.lotusNum = r.lotusNum
+		pinfo.phoneType = r.phoneType
 	end
 	
 	r = skynet.call("db_service", "lua", "getUserMonthCollect", self.uuid)
 	if r then
 		--signLine, mouth, fohaoGroup
-		playerInfo.signLine = r.signLine
-		playerInfo.mouth = r.mouth
-		playerInfo.fohaoGroup = r.fohaoGroup
+		pinfo.signLine = r.signLine
+		pinfo.mouth = r.mouth
+		pinfo.fohaoGroup = r.fohaoGroup
 	end
 	
-	return res
+	pinfo.signRank = 0
+	pinfo.censerRank = 0
+	pinfo.sutraRank = 0
+	return {totalRank=pinfo.totalRank, signNum=pinfo.signNum, signRank=pinfo.signRank,
+			censerNum=pinfo.censerNum, censerRank=pinfo.censerRank, sutraNum=pinfo.sutraNum,
+			sutraRank=pinfo.sutraRank, jingtuGroup=pinfo.jingtuGroup, lotusNum=pinfo.lotusNum,
+			signLine=pinfo.signLine, serverTime=os.time(), fohaoGroup=pinfo.fohaoGroup}
 end
 
 function REQUEST:updateUserData()
-	if not playerInfo[self.type] then
+	if not pinfo[self.type] then
 		return {errCode = 1, desc = "cant find this type : " .. self.type}
 	end
 	
-	playerInfo[self.type] = self.data
+	pinfo[self.type] = self.data
 	return {errCode = 0, desc = ""}
 end
 
