@@ -162,7 +162,7 @@ function CMD.register(uuid, phone, userData)
 	print("new user ："..uuid .. ", size=" .. string.len(uuid))
 
 	--uuid, registerTime, signNum, censerNum, sutraNum, jingtuGroup, lotusNum, phoneType, userData
-	local sql = string.format("insert into %s values('%s', '%ld', '%d', %d', '%d', '%s', '%d', '%s', '%s');", 
+	local sql = string.format("insert into %s values('%s', '%d', '%d', %d', '%d', '%s', '%d', '%s', '%s');", 
 				tbl_userBaseData, uuid, os.time(), 0, 0, 0, "", 0, phone or "", userData or "")
 	db:query(sql)
 	
