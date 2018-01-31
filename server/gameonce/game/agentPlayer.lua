@@ -26,6 +26,9 @@ local pinfo = {
 	signNum = 0,
 	censerNum = 0,
 	sutraNum = 0,
+	signRank = 0,
+	censerRank = 0,
+	sutraRank = 0,
 	jingtuGroup = "",
 	lotusNum = 0,
 	phoneType = "",
@@ -40,16 +43,23 @@ function REQUEST:totalPush()
 	local r = skynet.call("db_service", "lua", "getUserBaseData", self.uuid)
 	print("REQUEST:totalPush", r)
 	if r then
-		--uuid, registerTime, signNum, censerNum, sutraNum, jingtuGroup, lotusNum, phoneType, userData
 		pinfo.uuid = r.uuid
 		pinfo.registerTime = r.registerTime
-		pinfo.totalRank = r.signNum
-		pinfo.signNum = r.signNum
-		pinfo.censerNum = r.censerNum
-		pinfo.sutraNum = r.sutraNum
 		pinfo.jingtuGroup = r.jingtuGroup
 		pinfo.lotusNum = r.lotusNum
 		pinfo.phoneType = r.phoneType
+	end
+	
+	r = skynet.call("db_service", "lua", "getUserUpdateData", self.uuid)
+	if r then
+		pinfo.signNum = r.signNum
+		pinfo.censerNum = r.censerNum
+		pinfo.sutraNum = r.sutraNum
+		pinfo.signRank = r.signRank
+		pinfo.censerRank = r.censerRank
+		pinfo.sutraRank = r.sutraRank
+		pinfo.totalRank = r.totalRank
+		pinfo.incenseLastTime = r.incenseLastTime
 	end
 	
 	r = skynet.call("db_service", "lua", "getUserMonthCollect", self.uuid)
@@ -60,10 +70,7 @@ function REQUEST:totalPush()
 		pinfo.fohaoGroup = r.fohaoGroup
 	end
 	
-	pinfo.signRank = 0
-	pinfo.censerRank = 0
-	pinfo.sutraRank = 0
-	return {totalRank=pinfo.totalRank, signNum=pinfo.signNum, signRank=pinfo.signRank,
+	return {incenseLastTime=pinfo.incenseLastTime, totalRank=pinfo.totalRank, signNum=pinfo.signNum, signRank=pinfo.signRank,
 			censerNum=pinfo.censerNum, censerRank=pinfo.censerRank, sutraNum=pinfo.sutraNum,
 			sutraRank=pinfo.sutraRank, jingtuGroup=pinfo.jingtuGroup, lotusNum=pinfo.lotusNum,
 			signLine=pinfo.signLine, serverTime=os.time(), fohaoGroup=pinfo.fohaoGroup}

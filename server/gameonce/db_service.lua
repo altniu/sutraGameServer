@@ -140,6 +140,39 @@ function CMD.updateUserBaseData(uuid, key, value)
 	return res and true or false
 end
 
+function CMD.getUserUpdateData(uuid)
+	if not uuid or "string" ~= type(uuid) then 
+		return false
+	end
+	
+	local sql = "select * from " .. tbl_userUpdateData .. " where uuid = \'" .. uuid .. "\'"
+	res = db:query(sql)
+	if not res then
+		print(serviceName .. ",getUserMonthCollect uuid = " .. uuid .. " error")
+		return false
+	end
+	
+	local data = {}
+	for k,v in pairs(res) do
+		if v["uuid"] == uuid then
+			data = DeepCopy(v)
+			break
+		end
+	end
+	return data
+end
+
+function CMD.updateUserUpdate(uuid, key, value)
+	local sql = "update " .. tbl_userUpdateData .. " set " .. key .. " = \'" .. value .. "\'" .. " where uuid = \'" .. uuid .. "\'"
+	res = db:query(sql)
+	if not res then
+		print(serviceName .. ",updateMonthCollect uuid = " .. uuid .. " error")
+		return false
+	end
+	
+	return res and true or false
+end
+
 function CMD.getUserMonthCollect(uuid)
 	if not uuid or "string" ~= type(uuid) then 
 		return false
@@ -172,6 +205,8 @@ function CMD.updateMonthCollect(uuid, key, value)
 	
 	return res and true or false
 end
+
+
 
 
 function CMD.register(uuid, phone, userData)
