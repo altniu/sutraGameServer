@@ -95,6 +95,7 @@ end
 local userIDSerial = 0
 local tbl_monthCollect = "monthCollect"
 local tbl_userBaseData = "userBaseData"
+local tbl_userUpdateData = "userUpdateData"
 local CMD = setmetatable({}, { __gc = function() netpack.clear(queue) end })
 
 
@@ -181,17 +182,27 @@ function CMD.register(uuid, phone, userData)
 	print("new user ："..uuid .. ", size=" .. string.len(uuid))
 	local res
 	
-	--uuid, registerTime, signNum, censerNum, sutraNum, jingtuGroup, lotusNum, phoneType, userData
-	local sql = string.format([[insert into %s(uuid, registerTime, signNum, censerNum, sutraNum, jingtuGroup, lotusNum, phoneType, userData) 
-								values('%s', %d, %d, %d, %d, '%s', %d, '%s', '%s');]], 
-				tbl_userBaseData, uuid, os.time(), 0, 0, 0, "", 0, phone or "", userData or "")
-	print(sql)
-	
+	local sql = string.format([[insert into %s(uuid, registerTime, jingtuGroup, lotusNum, phoneType, userData) 
+								values('%s', %d, '%s', %d, '%s', '%s');]], 
+				tbl_userBaseData, uuid, os.time(), "", 0, phone or "", userData or "")
+	print(sql)	
 	res = db:query(sql)
 	if not res then
-		print(serviceName .. ",register uuid = " .. uuid .. " error")
+		print(serviceName .. ",register uuid = " .. uuid .. " error "  .. tbl_userBaseData)
 		return false
 	end
+	
+	sql = string.format([[insert into %s(uuid, incenseLastTime, signNum, censerNum, sutraNum, signRank, censerRank, sutraRank, totalRank) 
+								values('%s', %d, %d, %d, %d, %d, '%d', %d, '%d');]], 
+				tbl_userUpdateData, uuid, 0, 0, 0, 0, 0, 0, 0, 0)
+	print(sql)	
+	res = db:query(sql)
+	if not res then
+		print(serviceName .. ",register uuid = " .. uuid .. " error "  .. tbl_userUpdateData)
+		return false
+	end
+	
+	
 	
 	--uuid, signLine, mouth, fohaoGroup
 	sql = string.format("insert into %s(uuid, signLine, mouth, fohaoGroup) values('%s',%d, %d, '%s');", 
