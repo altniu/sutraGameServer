@@ -95,6 +95,8 @@ local function getDayByTime( t )
 	return dates
 end
 
+
+
 function REQUEST:totalPush()
 	local r = skynet.call("db_service", "lua", "getUserBaseData", self.uuid)
 	print("REQUEST:totalPush.getUserBaseData")
@@ -162,6 +164,7 @@ function REQUEST:updateUserData()
 	
 	if "signLine" == self.type then
 		pinfo.signLine = tonumber(self.data)
+		skynet.call("db_service", "lua", "updateMonthCollect", pinfo.uuid, "signLine", pinfo.signLine)
 	end
 	if "censerNum" == self.type then
 		local ser = getDayByTime(pinfo.ostime)
@@ -171,6 +174,7 @@ function REQUEST:updateUserData()
 			pinfo.incenseLastTime = pinfo.ostime
 			
 			CMD.pushUserData("censerNum", pinfo.censerNum)
+			skynet.call("db_service", "lua", "updateUserUpdate", pinfo.uuid, "censerNum", pinfo.censerNum)
 		else
 			return {errCode=1, desc="today already senserd"}
 		end
@@ -192,7 +196,8 @@ function REQUEST:updateUserData()
 			pinfo.fohaoGroup = string.sub(fh, 1, -2)
 		end
 		CMD.pushUserData("fohaoGroup", pinfo.fohaoGroup)
-
+		skynet.call("db_service", "lua", "updateMonthCollect", pinfo.uuid, "fohaoGroup", pinfo.fohaoGroup)
+		
 		local totalScore = 0
 		local songList, jingtu = skynet.call(game_root, "lua", "getJingtuListIdWithSongId", tonumber(s[1]))
 		if songList then
@@ -202,7 +207,7 @@ function REQUEST:updateUserData()
 				end
 			end
 		end
-		--วรป๗ณฌน3W
+		--敲击了3W下
 		if totalScore - addScore < 30000 then
 			local s1, s2 = string.find(pinfo.jingtuGroup, jingtu, 1, true)
 			s1, s2 = string.find(pinfo.jingtuGroup, ":", s2+1, true)
@@ -210,6 +215,8 @@ function REQUEST:updateUserData()
 			local jtNum = tonumber(string.find(s2+1, s3-1)) + 1
 			pinfo.jingtuGroup = string.sub(pinfo.jingtuGroup, 1, s2) .. jtNum .. string.sub(pinfo.jingtuGroup, s2+1, -1)
 			CMD.pushUserData("jingtuGroup", pinfo.jingtuGroup)
+			
+			skynet.call("db_service", "lua", "updateUserBaseData", pinfo.uuid, "jingtuGroup", pinfo.jingtuGroup)
 		end
 	end
 	
