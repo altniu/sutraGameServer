@@ -66,7 +66,7 @@ local function launch_slave(auth_handler, register_handler)
 		elseif opcode == "l" then
 			local challenge = crypt.randomkey()
 			--local challenge = test_challenge
-			print("challenge", challenge)
+			print("challenge", crypt.base64encode(challenge))
 			write("auth", fd, crypt.base64encode(challenge).."\n")
 
 			local handshake = assert_socket("auth", socket.readline(fd), fd)
