@@ -23,8 +23,12 @@ function server.auth_handler(token)
 	print("server.auth_handler.token:" .. token)
 	-- the token is base64(user)@base64(server):base64(password)
 	local uuid, phone = token:match("([^@]+)@([^:]+)")
+	print("uuidA", uuid)
+	print("phoneA", phone)
 	uuid = crypt.base64decode(uuid)
 	phone = crypt.base64decode(phone)
+	print("uuidB", uuid)
+	print("phoneB", phone)
 	
 	if user_cacheTable[uuid] then
 		print("user login, uuid = " .. uuid)
