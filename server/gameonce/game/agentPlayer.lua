@@ -42,6 +42,39 @@ local pinfo = {
 	sutraLastTime = 0,
 }
 
+
+local function printTable(lua_table, indent)
+    if not lua_table then
+        return
+    end
+    indent = indent or 0
+    for k, v in pairs(lua_table) do
+        if type(k) == "string" then
+            k = string.format("%q", k)
+        end
+        local szSuffix = ""
+        if type(v) == "table" then
+            szSuffix = "{"
+        end
+        local szPrefix = string.rep("    ", indent)
+        local formatting = szPrefix.."["..k.."]".." = "..szSuffix
+        if type(v) == "table" then
+            print(formatting)
+            printTable(v, indent + 1)
+            print(szPrefix.."},")
+        else
+            local szValue = ""
+            if type(v) == "string" then
+                szValue = string.format("%q", v)
+            else
+                szValue = tostring(v)
+            end
+            print(formatting..szValue..",")
+        end
+    end
+end
+
+
 local function split(input, delimiter)
     if input == "" then return {} end
     input = tostring(input)
@@ -64,7 +97,9 @@ end
 
 function REQUEST:totalPush()
 	local r = skynet.call("db_service", "lua", "getUserBaseData", self.uuid)
-	print("REQUEST:totalPush", r)
+	print("REQUEST:totalPush.getUserBaseData")
+	printTable(r)
+	
 	if r then
 		pinfo.uuid = r.uuid
 		pinfo.registerTime = r.registerTime
@@ -74,6 +109,8 @@ function REQUEST:totalPush()
 	end
 	
 	r = skynet.call("db_service", "lua", "getUserUpdateData", self.uuid)
+	print("REQUEST:totalPush.getUserUpdateData")
+	printTable(r)
 	if r then
 		pinfo.signNum = r.signNum
 		pinfo.censerNum = r.censerNum
@@ -87,6 +124,8 @@ function REQUEST:totalPush()
 	end
 	
 	r = skynet.call("db_service", "lua", "getUserMonthCollect", self.uuid)
+	print("REQUEST:totalPush.getUserMonthCollect")
+	printTable(r)
 	if r then
 		--signLine, mouth, fohaoGroup
 		pinfo.signLine = r.signLine
@@ -101,7 +140,7 @@ function REQUEST:totalPush()
 	
 	pinfo.ostime = os.time()
 	
-	return {incenseLastTime=pinfo.incenseLastTime, sutraLastTime=pinfo.sutraLastTime, totalRank=pinfo.totalRank, 
+	local ret = {incenseLastTime=pinfo.incenseLastTime, sutraLastTime=pinfo.sutraLastTime, totalRank=pinfo.totalRank, 
 			signNum=pinfo.signNum, signRank=pinfo.signRank,
 			censerNum=pinfo.censerNum, censerRank=pinfo.censerRank, sutraNum=pinfo.sutraNum,
 			sutraRank=pinfo.sutraRank, jingtuGroup=pinfo.jingtuGroup, lotusNum=pinfo.lotusNum,
