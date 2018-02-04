@@ -199,13 +199,11 @@ function CMD.register(uuid, phone, userData)
 	printTable(res)
 	
 	--uuid, signLine, mouth, fohaoGroup
-	sql = string.format("insert into %s(uuid, signLine, mouth, fohaoGroup) values('%s',%d, %d, '%s');", 
+	sql = string.format("insert into %s(uuid, signLine, month, fohaoGroup) values('%s',%d, %d, '%s');", 
 				tbl_monthCollect, uuid, 0, 0, "")
 	print(sql)
-	
-	
 	res = db:query(sql)
-	assert(res, serviceName .. ",register uuid = " .. uuid .. " error")
+	assert(res, serviceName .. ",register uuid = " .. uuid .. " error "  .. tbl_monthCollect)
 	printTable(res)
 	
 	return true
