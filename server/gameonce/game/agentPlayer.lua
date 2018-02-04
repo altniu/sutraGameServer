@@ -202,7 +202,7 @@ function REQUEST:updateUserData()
 				end
 			end
 		end
-		--ÇÃ»÷³¬¹ý3W
+		--à¸§à¸£à¸›à¹—à¸“à¸Œà¸™ï£†3W
 		if totalScore - addScore < 30000 then
 			local s1, s2 = string.find(pinfo.jingtuGroup, jingtu, 1, true)
 			s1, s2 = string.find(pinfo.jingtuGroup, ":", s2+1, true)
