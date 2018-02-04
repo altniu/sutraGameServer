@@ -64,8 +64,8 @@ local function launch_slave(auth_handler, register_handler)
 			return _ and ok, code
 			
 		elseif opcode == "l" then
-			--local challenge = crypt.randomkey()
-			local challenge = test_challenge
+			local challenge = crypt.randomkey()
+			--local challenge = test_challenge
 			print("challenge", challenge)
 			write("auth", fd, crypt.base64encode(challenge).."\n")
 
@@ -76,8 +76,8 @@ local function launch_slave(auth_handler, register_handler)
 			end
 			print("clientkey", clientkey)
 			
-			--local serverkey = crypt.randomkey()
-			local serverkey = test_serverkey
+			local serverkey = crypt.randomkey()
+			--local serverkey = test_serverkey
 			serverkey = crypt.dhexchange(serverkey)
 			print("serverkey", serverkey)
 			write("auth", fd, crypt.base64encode(serverkey).."\n")
