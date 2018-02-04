@@ -74,20 +74,20 @@ local function launch_slave(auth_handler, register_handler)
 			if #clientkey ~= 8 then
 				error "Invalid client key"
 			end
-			print("clientkey", clientkey)
+			print("clientkey", handshake)
 			
 			local serverkey = crypt.randomkey()
 			--local serverkey = test_serverkey
 			serverkey = crypt.dhexchange(serverkey)
-			print("serverkey", serverkey)
+			print("serverkey", crypt.base64encode(serverkey))
 			write("auth", fd, crypt.base64encode(serverkey).."\n")
 
 			local secret = crypt.dhsecret(clientkey, serverkey)			
 			print("secret", secret)
 
 			local response = assert_socket("auth", socket.readline(fd), fd)
-			response = crypt.base64decode(response)
 			print("client response", response)
+			response = crypt.base64decode(response)			
 			local hmac = crypt.hmac64(challenge, secret)
 			print("hmac", hmac)
 			if hmac ~= response then
@@ -98,8 +98,9 @@ local function launch_slave(auth_handler, register_handler)
 			end
 			
 			local etoken = assert_socket("auth", socket.readline(fd),fd)
-
+			print("etoken", etoken)
 			local token = crypt.desdecode(secret, crypt.base64decode(etoken))
+			print("token", token)
 			local _, ok, uid =  pcall(auth_handler,token)
 			ok = _ and ok
 			local resc = ok and 0 or 300
