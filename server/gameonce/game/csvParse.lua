@@ -75,7 +75,7 @@ local function parseline(line)
         if(tl) then v = trim_left(v); end  
         if(tr) then v = trim_right(v); end  
 		
-        ret[table.getn(ret)+1] = v;  
+        ret[#ret+1] = v;  
         --print(8,"ret["..table.getn(ret).."]=".."\""..v.."\"");  
   
         if(string.find(s, "^,")) then  
