@@ -38,6 +38,8 @@ local pinfo = {
 	fohaoGroup = "",
 	first = false,
 	ostime = 0,
+	incenseLastTime = 0,
+	sutraLastTime = 0,
 }
 
 local function split(input, delimiter)
@@ -53,6 +55,11 @@ local function split(input, delimiter)
     end
     table.insert(arr, string.sub(input, pos))
     return arr
+end
+
+local function getDayByTime( t )
+	local dates = os.date("*t", t)
+	return dates
 end
 
 function REQUEST:totalPush()
@@ -76,6 +83,7 @@ function REQUEST:totalPush()
 		pinfo.sutraRank = r.sutraRank
 		pinfo.totalRank = r.totalRank
 		pinfo.incenseLastTime = r.incenseLastTime
+		pinfo.sutraLastTime = r.sutraLastTime
 	end
 	
 	r = skynet.call("db_service", "lua", "getUserMonthCollect", self.uuid)
@@ -93,7 +101,8 @@ function REQUEST:totalPush()
 	
 	pinfo.ostime = os.time()
 	
-	return {incenseLastTime=pinfo.incenseLastTime, totalRank=pinfo.totalRank, signNum=pinfo.signNum, signRank=pinfo.signRank,
+	return {incenseLastTime=pinfo.incenseLastTime, sutraLastTime=pinfo.sutraLastTime, totalRank=pinfo.totalRank, 
+			signNum=pinfo.signNum, signRank=pinfo.signRank,
 			censerNum=pinfo.censerNum, censerRank=pinfo.censerRank, sutraNum=pinfo.sutraNum,
 			sutraRank=pinfo.sutraRank, jingtuGroup=pinfo.jingtuGroup, lotusNum=pinfo.lotusNum,
 			signLine=pinfo.signLine, serverTime=pinfo.ostime, fohaoGroup=pinfo.fohaoGroup}
@@ -111,21 +120,53 @@ function REQUEST:updateUserData()
 	if "signLine" == self.type then
 		pinfo.signLine = tonumber(self.data)
 	end
-	if "incenseLastTime" == self.type then
-		pinfo.incenseLastTime = tonumber(self.data)
+	if "censerNum" == self.type then
+		local ser = getDayByTime(pinfo.ostime)
+		local last = getDayByTime(pinfo.incenseLastTime)
+		if ser.year ~= last.year or ser.month ~= last.month or ser.day ~= last.day then
+			pinfo.censerNum = pinfo.censerNum + 1
+			pinfo.incenseLastTime = pinfo.ostime
+			
+			CMD.pushUserData("censerNum", pinfo.censerNum)
+		else
+			return {errCode=1, desc="today already senserd"}
+		end
 	end
 	if "songScore" == self.type then
 		local s = split(self.data, ":")
 		if not pinfo.musicScore[s[1]] then
 			return {errCode=1, desc="cant find the song ", s[1]}
 		end
-		pinfo.musicScore[s[1]] = tonumber(s[2])
+		
+		local addScore = tonumber(s[2])
+		local lastScore = pinfo.musicScore[s[1]]
+		pinfo.musicScore[s[1]] = pinfo.musicScore[s[1]] + addScore
 		local fh = ""
 		for k,v in pairs(pinfo.musicScore) do
 			fh = fh .. "k" .. ":" .. v .. ","
 		end
 		if string.len(fh) > 0 then
 			pinfo.fohaoGroup = string.sub(fh, 1, -2)
+		end
+		CMD.pushUserData("fohaoGroup", pinfo.fohaoGroup)
+
+		local totalScore = 0
+		local songList, jingtu = skynet.call(game_root, "lua", "getJingtuListIdWithSongId", tonumber(s[1]))
+		if songList then
+			for k,v in pairs(songList) do
+				if pinfo.musicScore[v] then
+					totalScore = totalScore + pinfo.musicScore[v]
+				end
+			end
+		end
+		--วรป๗ณฌนý3W
+		if totalScore - addScore < 30000 then
+			local s1, s2 = string.find(pinfo.jingtuGroup, jingtu, 1, true)
+			s1, s2 = string.find(pinfo.jingtuGroup, ":", s2+1, true)
+			local s3 = string.find(pinfo.jingtuGroup, ",", s2+1, true)
+			local jtNum = tonumber(string.find(s2+1, s3-1)) + 1
+			pinfo.jingtuGroup = string.sub(pinfo.jingtuGroup, 1, s2) .. jtNum .. string.sub(pinfo.jingtuGroup, s2+1, -1)
+			CMD.pushUserData("jingtuGroup", pinfo.jingtuGroup)
 		end
 	end
 	

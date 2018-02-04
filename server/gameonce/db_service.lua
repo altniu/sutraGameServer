@@ -227,8 +227,8 @@ function CMD.register(uuid, phone, userData)
 		return false
 	end
 	
-	sql = string.format([[insert into %s(uuid, incenseLastTime, signNum, censerNum, sutraNum, signRank, censerRank, sutraRank, totalRank) 
-								values('%s', %d, %d, %d, %d, %d, '%d', %d, '%d');]], 
+	sql = string.format([[insert into %s(uuid, incenseLastTime, sutraLastTime, signNum, censerNum, sutraNum, signRank, censerRank, sutraRank, totalRank) 
+								values('%s', %d, %d, %d, %d, %d, %d, '%d', %d, '%d');]], 
 				tbl_userUpdateData, uuid, 0, 0, 0, 0, 0, 0, 0, 0)
 	print(sql)	
 	res = db:query(sql)

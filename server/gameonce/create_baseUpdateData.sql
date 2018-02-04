@@ -3,6 +3,7 @@ create table userUpdateData
     (
     uuid char(64) not null primary key,
 	incenseLastTime int not null,
+	sutraLastTime int not null,
 	signNum int not null,
 	censerNum int not null,
 	sutraNum int not null,
