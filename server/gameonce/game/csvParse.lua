@@ -176,7 +176,7 @@ function csvParse.LoadMusicRhythm(fileName)
 	if not f then
 		assert(false, "cant find file " .. fileName)
 	end
-    local sourcePath = f.read()
+    local sourcePath = f.read("*")
 	log("sourcePath", sourcePath)
     local xx = split(sourcePath, "\n")
     
