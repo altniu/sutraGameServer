@@ -120,7 +120,22 @@ local function getRowContent(file)
     return content  
 end  
   
-  
+ function split(input, delimiter)
+    if not input or input == "" then
+        return {}
+    end
+    input = tostring(input)
+    delimiter = tostring(delimiter)
+    if (delimiter=='') then return false end
+    local pos,arr = 0, {}
+    -- for each divider found
+    for st,sp in function() return string.find(input, delimiter, pos, true) end do
+        table.insert(arr, string.sub(input, pos, st - 1))
+        pos = sp + 1
+    end
+    table.insert(arr, string.sub(input, pos))
+    return arr
+end 
   
 --解析csv文件  
 function csvParse.LoadCsv(fileName)  
@@ -156,22 +171,14 @@ function csvParse.LoadCsv(fileName)
     return ret  
 end
 
-function csvParse.LoadMusicRhythm(fileName)  
-    
-    local sourcePath = fileName
-
-    local targetPlatform = cc.Application:getInstance():getTargetPlatform()
-    if (cc.PLATFORM_OS_WINDOWS == targetPlatform) then
-        --sourcePath = "../../res/" .. datapath
-        --sourcePath = "res/" .. datapath
-    elseif (cc.PLATFORM_OS_IPHONE == targetPlatform) or (cc.PLATFORM_OS_IPAD == targetPlatform) or (cc.PLATFORM_OS_ANDROID == targetPlatform)  then
-       
-       --sourcePath = cc.FileUtils:getInstance():getWritablePath() .. sourcePath
-       --Game:initDataBase("res",Constant.DB_NAME)
-    end
-
-    local sourcePath = cc.FileUtils:getInstance():getStringFromFile(sourcePath)
-    local xx = string.split(sourcePath, "\n")
+function csvParse.LoadMusicRhythm(fileName)
+	local f = io.open(fileName, "r")
+	if not f then
+		assert(false, "cant find file " .. fileName)
+	end
+    local sourcePath = f.read()
+	log("sourcePath", sourcePath)
+    local xx = split(sourcePath, "\n")
     
     local ids = parseline(xx[1])
     local ret = {}
@@ -220,6 +227,7 @@ function csvParse.LoadMusicRhythm(fileName)
         local lineInfo = parseline(xx[i])
 		
 		for j=1, #lineInfo do
+			if not ret[j].rhythm then ret[j].rhythm = {} end
 			if lineInfo[j] ~= "" then
 				ret[j].rhythm[#ret[j].rhythm+1] = tonumber(lineInfo[j])
 			end

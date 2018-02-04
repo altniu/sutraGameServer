@@ -39,7 +39,7 @@ end
 
 
 function init()
-	songCsv = csvParse.LoadMusicRhythm("res/songData.csv")
+	songCsv = csvParse.LoadMusicRhythm("server/gameonce/game/songData.csv")
 end
 
 skynet.start(function()
