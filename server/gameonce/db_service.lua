@@ -222,21 +222,15 @@ function CMD.register(uuid, phone, userData)
 				tbl_userBaseData, uuid, os.time(), "", 0, phone or "", userData or "")
 	print(sql)	
 	res = db:query(sql)
-	if not res then
-		print(serviceName .. ",register uuid = " .. uuid .. " error "  .. tbl_userBaseData)
-		return false
-	end
+	assert(res, serviceName .. ",register uuid = " .. uuid .. " error "  .. tbl_userBaseData)
+	
 	
 	sql = string.format([[insert into %s(uuid, incenseLastTime, sutraLastTime, signNum, censerNum, sutraNum, signRank, censerRank, sutraRank, totalRank) 
 								values('%s', %s, %d, %d, %d, %d, %d, %d, '%d', %d, '%d');]], 
 				tbl_userUpdateData, uuid, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 	print(sql)	
 	res = db:query(sql)
-	if not res then
-		print(serviceName .. ",register uuid = " .. uuid .. " error "  .. tbl_userUpdateData)
-		return false
-	end
-	
+	assert(res, serviceName .. ",register uuid = " .. uuid .. " error "  .. tbl_userUpdateData)	
 	
 	
 	--uuid, signLine, mouth, fohaoGroup
@@ -245,10 +239,7 @@ function CMD.register(uuid, phone, userData)
 	print(sql)
 	
 	res = db:query(sql)
-	if not res then
-		print(serviceName .. ",register uuid = " .. uuid .. " error")
-		return false
-	end
+	assert(res, serviceName .. ",register uuid = " .. uuid .. " error")
 	
 	return true
 end

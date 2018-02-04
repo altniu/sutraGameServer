@@ -1,4 +1,7 @@
 use  sutraGameDB;
+
+drop table userUpdateData;
+
 create table userUpdateData
     (
     uuid char(64) not null primary key,

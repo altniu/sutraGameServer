@@ -1,4 +1,7 @@
 use sutraGameDB;
+
+drop table monthCollect;
+
 create table monthCollect
 	(
 	uuid char(64) not null  primary key,
