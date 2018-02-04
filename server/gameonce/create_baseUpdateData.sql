@@ -1,5 +1,5 @@
 use  sutraGameDB;
-create table userBaseData
+create table userUpdateData
     (
     uuid char(64) not null primary key,
 	incenseLastTime int not null,
