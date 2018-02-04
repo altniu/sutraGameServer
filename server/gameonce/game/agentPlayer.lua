@@ -145,6 +145,10 @@ function REQUEST:totalPush()
 			censerNum=pinfo.censerNum, censerRank=pinfo.censerRank, sutraNum=pinfo.sutraNum,
 			sutraRank=pinfo.sutraRank, jingtuGroup=pinfo.jingtuGroup, lotusNum=pinfo.lotusNum,
 			signLine=pinfo.signLine, serverTime=pinfo.ostime, fohaoGroup=pinfo.fohaoGroup}
+			
+	printTable(ret)
+	
+	return ret
 end
 
 function REQUEST:updateUserData()
