@@ -232,3 +232,5 @@ function csvParse.LoadMusicRhythm(fileName)
 	end
     return res
 end
+
+return csvParse
