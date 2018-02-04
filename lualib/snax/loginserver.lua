@@ -74,7 +74,6 @@ local function launch_slave(auth_handler, register_handler)
 			print("clientkey", handshake)
 			
 			local serverkey = crypt.randomkey()
-			local serverkey = test_serverkey
 			serverkey = crypt.dhexchange(serverkey)
 			print("serverkey", crypt.base64encode(serverkey))
 			write("auth", fd, crypt.base64encode(serverkey).."\n")
