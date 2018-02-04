@@ -42,7 +42,7 @@ updateUserData 2 {
 	request {
 		type 0 	: string
 		data 1 	: string
-		ostime	: integer
+		ostime 2	: integer
 	}
 	response {
 		errCode 0 : integer
