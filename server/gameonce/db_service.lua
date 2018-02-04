@@ -228,8 +228,8 @@ function CMD.register(uuid, phone, userData)
 	end
 	
 	sql = string.format([[insert into %s(uuid, incenseLastTime, sutraLastTime, signNum, censerNum, sutraNum, signRank, censerRank, sutraRank, totalRank) 
-								values('%s', %d, %d, %d, %d, %d, %d, '%d', %d, '%d');]], 
-				tbl_userUpdateData, uuid, 0, 0, 0, 0, 0, 0, 0, 0)
+								values('%s', %s, %d, %d, %d, %d, %d, %d, '%d', %d, '%d');]], 
+				tbl_userUpdateData, uuid, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 	print(sql)	
 	res = db:query(sql)
 	if not res then

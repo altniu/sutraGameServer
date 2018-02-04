@@ -210,7 +210,7 @@ function csvParse.LoadMusicRhythm(fileName)
 		assert(false, "cant find file " .. fileName)
 	end
     local sourcePath = f:read("a")
-	print("sourcePath", sourcePath)
+	--print("sourcePath", sourcePath)
     local xx = split(sourcePath, "\n")
     
     local ids = parseline(xx[1])
