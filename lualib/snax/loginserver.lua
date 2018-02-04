@@ -47,6 +47,8 @@ local function write(service, fd, text)
 	assert_socket(service, socket.write(fd, text), fd)
 end
 
+local test_challenge = crypt.randomkey()
+local test_serverkey = crypt.randomkey()
 local function launch_slave(auth_handler, register_handler)
 	local function auth(fd, addr)
 		-- set socket buffer limit (8K)
@@ -63,7 +65,7 @@ local function launch_slave(auth_handler, register_handler)
 			
 		elseif opcode == "l" then
 			--local challenge = crypt.randomkey()
-			local challenge = "qwe123"
+			local challenge = test_challenge
 			print("challenge", challenge)
 			write("auth", fd, crypt.base64encode(challenge).."\n")
 
@@ -74,8 +76,8 @@ local function launch_slave(auth_handler, register_handler)
 			end
 			print("clientkey", clientkey)
 			
-			local serverkey = crypt.randomkey()
-			serverkey = "poi098"
+			--local serverkey = crypt.randomkey()
+			local serverkey = test_serverkey
 			serverkey = crypt.dhexchange(serverkey)
 			print("serverkey", serverkey)
 			write("auth", fd, crypt.base64encode(serverkey).."\n")
