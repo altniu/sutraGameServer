@@ -191,7 +191,7 @@ function CMD.register(uuid, phone, userData)
 	
 	
 	sql = string.format([[insert into %s(uuid, incenseLastTime, sutraLastTime, signNum, censerNum, sutraNum, signRank, censerRank, sutraRank, totalRank) 
-								values('%s', %s, %d, %d, %d, %d, %d, %d, %d, %d, %d);]], 
+								values('%s', %d, %d, %d, %d, %d, %d, %d, %d, %d);]], 
 				tbl_userUpdateData, uuid, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 	print(sql)	
 	res = db:query(sql)
