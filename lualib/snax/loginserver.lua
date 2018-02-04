@@ -47,8 +47,6 @@ local function write(service, fd, text)
 	assert_socket(service, socket.write(fd, text), fd)
 end
 
-local test_challenge = crypt.randomkey()
-local test_serverkey = crypt.randomkey()
 local function launch_slave(auth_handler, register_handler)
 	local function auth(fd, addr)
 		-- set socket buffer limit (8K)
@@ -65,8 +63,7 @@ local function launch_slave(auth_handler, register_handler)
 			
 		elseif opcode == "l" then
 			local challenge = crypt.randomkey()
-			--local challenge = test_challenge
-			print("challenge", crypt.base64encode(challenge))
+			--print("challenge", crypt.base64encode(challenge))
 			write("auth", fd, crypt.base64encode(challenge).."\n")
 
 			local handshake = assert_socket("auth", socket.readline(fd), fd)
@@ -74,22 +71,22 @@ local function launch_slave(auth_handler, register_handler)
 			if #clientkey ~= 8 then
 				error "Invalid client key"
 			end
-			print("clientkey", handshake)
+			--print("clientkey", handshake)
 			
 			local serverkey = crypt.randomkey()
 			--local serverkey = test_serverkey
 			serverkey = crypt.dhexchange(serverkey)
-			print("serverkey", crypt.base64encode(serverkey))
+			--print("serverkey", crypt.base64encode(serverkey))
 			write("auth", fd, crypt.base64encode(serverkey).."\n")
 
 			local secret = crypt.dhsecret(clientkey, serverkey)			
-			print("secret", crypts.base64encode(secret))
+			--print("secret", crypts.base64encode(secret))
 
 			local response = assert_socket("auth", socket.readline(fd), fd)
-			print("client response", response)
+			--print("client response", response)
 			response = crypt.base64decode(response)			
 			local hmac = crypt.hmac64(challenge, secret)
-			print("hmac", crypts.base64encode(hmac))
+			--print("hmac", crypts.base64encode(hmac))
 			if hmac ~= response then
 				print "200 challenge failed"
 				return false, 200
@@ -98,9 +95,9 @@ local function launch_slave(auth_handler, register_handler)
 			end
 			
 			local etoken = assert_socket("auth", socket.readline(fd),fd)
-			print("etoken", etoken)
+			--print("etoken", etoken)
 			local token = crypt.desdecode(secret, crypt.base64decode(etoken))
-			print("token", token)
+			--print("token", token)
 			local _, ok, uid =  pcall(auth_handler,token)
 			ok = _ and ok
 			local resc = ok and 0 or 300
