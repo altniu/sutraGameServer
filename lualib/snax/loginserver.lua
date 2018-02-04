@@ -82,10 +82,10 @@ local function launch_slave(auth_handler, register_handler)
 			--print("secret", crypts.base64encode(secret))
 
 			local response = assert_socket("auth", socket.readline(fd), fd)
-			print("client response", response)
+			--print("client response", response)
 			response = crypt.base64decode(response)			
 			local hmac = crypt.hmac64(challenge, secret)
-			print("hmac", crypts.base64encode(hmac))
+			--print("hmac", crypts.base64encode(hmac))
 			if hmac ~= response then
 				print "200 challenge failed"
 				return false, 200
