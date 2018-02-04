@@ -136,7 +136,7 @@ end
     table.insert(arr, string.sub(input, pos))
     return arr
 end 
-  
+
 --解析csv文件  
 function csvParse.LoadCsv(fileName)  
     
@@ -171,13 +171,46 @@ function csvParse.LoadCsv(fileName)
     return ret  
 end
 
+
+local function printTable(lua_table, indent)
+    if not lua_table then
+        return
+    end
+    indent = indent or 0
+    for k, v in pairs(lua_table) do
+        if type(k) == "string" then
+            k = string.format("%q", k)
+        end
+        local szSuffix = ""
+        if type(v) == "table" then
+            szSuffix = "{"
+        end
+        local szPrefix = string.rep("    ", indent)
+        local formatting = szPrefix.."["..k.."]".." = "..szSuffix
+        if type(v) == "table" then
+            print(formatting)
+            printTable(v, indent + 1)
+            print(szPrefix.."},")
+        else
+            local szValue = ""
+            if type(v) == "string" then
+                szValue = string.format("%q", v)
+            else
+                szValue = tostring(v)
+            end
+            print(formatting..szValue..",")
+        end
+    end
+end
+
+
 function csvParse.LoadMusicRhythm(fileName)
 	local f = io.open(fileName, "r")
 	if not f then
 		assert(false, "cant find file " .. fileName)
 	end
     local sourcePath = f:read("a")
-	log("sourcePath", sourcePath)
+	print("sourcePath", sourcePath)
     local xx = split(sourcePath, "\n")
     
     local ids = parseline(xx[1])
