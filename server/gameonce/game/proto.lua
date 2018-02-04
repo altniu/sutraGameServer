@@ -40,8 +40,9 @@ totalPush 1 {
 
 updateUserData 2 {
 	request {
-		type 0 : string
-		data 1 : string
+		type 0 	: string
+		data 1 	: string
+		ostime	: integer
 	}
 	response {
 		errCode 0 : integer

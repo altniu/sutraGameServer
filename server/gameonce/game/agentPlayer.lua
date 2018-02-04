@@ -34,10 +34,26 @@ local pinfo = {
 	phoneType = "",
 	signLine = 0,
 	mouth = 0,
+	musicScore = {},
 	fohaoGroup = "",
 	first = false,
+	ostime = 0,
 }
 
+local function split(input, delimiter)
+    if input == "" then return {} end
+    input = tostring(input)
+    delimiter = tostring(delimiter)
+    if (delimiter=='') then return {} end
+    local pos,arr = 0, {}
+    -- for each divider found
+    for st,sp in function() return string.find(input, delimiter, pos, true) end do
+        table.insert(arr, string.sub(input, pos, st - 1))
+        pos = sp + 1
+    end
+    table.insert(arr, string.sub(input, pos))
+    return arr
+end
 
 function REQUEST:totalPush()
 	local r = skynet.call("db_service", "lua", "getUserBaseData", self.uuid)
@@ -68,20 +84,51 @@ function REQUEST:totalPush()
 		pinfo.signLine = r.signLine
 		pinfo.mouth = r.mouth
 		pinfo.fohaoGroup = r.fohaoGroup
+		local scores = split(r.fohaoGroup, ",")
+		for k,v in pairs(scores) do
+			local s = split(v, ":")
+			pinfo.musicScore[s[1]] = tonumber(s[2])
+		end
 	end
+	
+	pinfo.ostime = os.time()
 	
 	return {incenseLastTime=pinfo.incenseLastTime, totalRank=pinfo.totalRank, signNum=pinfo.signNum, signRank=pinfo.signRank,
 			censerNum=pinfo.censerNum, censerRank=pinfo.censerRank, sutraNum=pinfo.sutraNum,
 			sutraRank=pinfo.sutraRank, jingtuGroup=pinfo.jingtuGroup, lotusNum=pinfo.lotusNum,
-			signLine=pinfo.signLine, serverTime=os.time(), fohaoGroup=pinfo.fohaoGroup}
+			signLine=pinfo.signLine, serverTime=pinfo.ostime, fohaoGroup=pinfo.fohaoGroup}
 end
 
 function REQUEST:updateUserData()
 	if not pinfo[self.type] then
 		return {errCode = 1, desc = "cant find this type : " .. self.type}
 	end
+
+	if self.ostime ~= pinfo.ostime then
+		return {errCode=1, desc="err ostime"}
+	end
 	
-	pinfo[self.type] = self.data
+	if "signLine" == self.type then
+		pinfo.signLine = tonumber(self.data)
+	end
+	if "incenseLastTime" == self.type then
+		pinfo.incenseLastTime = tonumber(self.data)
+	end
+	if "songScore" == self.type then
+		local s = split(self.data, ":")
+		if not pinfo.musicScore[s[1]] then
+			return {errCode=1, desc="cant find the song ", s[1]}
+		end
+		pinfo.musicScore[s[1]] = tonumber(s[2])
+		local fh = ""
+		for k,v in pairs(pinfo.musicScore) do
+			fh = fh .. "k" .. ":" .. v .. ","
+		end
+		if string.len(fh) > 0 then
+			pinfo.fohaoGroup = string.sub(fh, 1, -2)
+		end
+	end
+	
 	return {errCode = 0, desc = ""}
 end
 
