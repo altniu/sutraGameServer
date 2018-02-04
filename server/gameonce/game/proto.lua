@@ -23,17 +23,18 @@ totalPush 1 {
 		signRank 2 : integer
 		censerNum 3 : integer
 		censerRank 4 : integer
-		sutraNum 5 : integer
-		sutraRank 6 : integer
+		incenseLastTime 5 : integer
+		sutraNum 6 : integer
+		sutraRank 7 : integer
 		
-		jingtuGroup 7 : string
-		lotusNum 8 : integer
+		jingtuGroup 8 : string
+		lotusNum 9 : integer
 		
-		signLine 9 : integer
-		serverTime 10 : integer
-		fohaoGroup 11 : string
+		signLine 10 : integer
+		serverTime 11 : integer
+		fohaoGroup 12 : string
 		
-		first 12 : boolean
+		first 13 : boolean
 	}
 }
 
