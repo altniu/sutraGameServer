@@ -203,6 +203,7 @@ function CMD.register(uuid, phone, userData)
 				tbl_monthCollect, uuid, 0, 0, "")
 	print(sql)
 	
+	
 	res = db:query(sql)
 	assert(res, serviceName .. ",register uuid = " .. uuid .. " error")
 	printTable(res)
