@@ -132,7 +132,7 @@ function CMD.updateUserUpdate(uuid, key, value)
 	local sql = "update " .. tbl_userUpdateData .. " set " .. key .. " = \'" .. value .. "\'" .. " where uuid = \'" .. uuid .. "\'"
 	res = db:query(sql)
 	if not res then
-		print(serviceName .. ",updateMonthCollect uuid = " .. uuid .. " error")
+		print(serviceName .. ",updateUserUpdate uuid = " .. uuid .. " error")
 		return false
 	end
 	
