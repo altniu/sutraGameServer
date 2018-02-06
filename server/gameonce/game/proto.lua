@@ -62,7 +62,7 @@ heartbeat 1 {}
 
 pushUserData 2 {
 	request {
-		type 0 : integer
+		type 0 : string
 		data 1 : string
 	}
 }
