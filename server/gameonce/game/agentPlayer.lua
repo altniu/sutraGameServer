@@ -153,6 +153,10 @@ function REQUEST:totalPush()
 	return ret
 end
 
+local function updateTotalRank()
+	
+end
+
 function REQUEST:updateUserData()
 	if not pinfo[self.type] then
 		return {errCode = 1, desc = "cant find this type : " .. self.type}
@@ -164,7 +168,12 @@ function REQUEST:updateUserData()
 	
 	if "signLine" == self.type then
 		pinfo.signLine = tonumber(self.data)
+		pinfo.signNum = pinfo.signNum + 1
+		
+		CMD.pushUserData("signNum", pinfo.signNum)
+		
 		skynet.call("db_service", "lua", "updateMonthCollect", pinfo.uuid, "signLine", pinfo.signLine)
+		skynet.call("db_service", "lua", "updateUserUpdate", pinfo.uuid, "signNum", pinfo.signNum)
 	end
 	if "censerNum" == self.type then
 		local ser = getDayByTime(pinfo.ostime)
@@ -174,6 +183,7 @@ function REQUEST:updateUserData()
 			pinfo.incenseLastTime = pinfo.ostime
 			
 			CMD.pushUserData("censerNum", pinfo.censerNum)
+			CMD.pushUserData("incenseLastTime", pinfo.incenseLastTime)
 			skynet.call("db_service", "lua", "updateUserUpdate", pinfo.uuid, "censerNum", pinfo.censerNum)
 			skynet.call("db_service", "lua", "updateUserUpdate", pinfo.uuid, "incenseLastTime", pinfo.incenseLastTime)
 		else
@@ -185,7 +195,21 @@ function REQUEST:updateUserData()
 		if not pinfo.musicScore[s[1]] then
 			return {errCode=1, desc="cant find the song ", s[1]}
 		end
-		
+				
+		local ser = getDayByTime(pinfo.ostime)
+		local last = getDayByTime(pinfo.sutraLastTime)
+		if ser.year ~= last.year or ser.month ~= last.month or ser.day ~= last.day then
+			pinfo.sutraNum = pinfo.sutraNum + 1
+			pinfo.sutraLastTime = pinfo.ostime
+			
+			CMD.pushUserData("sutraNum", pinfo.sutraNum)
+			CMD.pushUserData("sutraLastTime", pinfo.sutraLastTime)
+			
+			skynet.call("db_service", "lua", "updateUserUpdate", pinfo.uuid, "sutraNum", pinfo.sutraNum)
+			skynet.call("db_service", "lua", "updateUserUpdate", pinfo.uuid, "sutraLastTime", pinfo.sutraLastTime)
+		end
+	
+		--保存佛句,增加得分
 		local addScore = tonumber(s[2])
 		local lastScore = pinfo.musicScore[s[1]]
 		pinfo.musicScore[s[1]] = pinfo.musicScore[s[1]] + addScore
@@ -208,6 +232,7 @@ function REQUEST:updateUserData()
 				end
 			end
 		end
+		
 		--敲击了3W下
 		if totalScore - addScore < 30000 then
 			local s1, s2 = string.find(pinfo.jingtuGroup, jingtu, 1, true)
