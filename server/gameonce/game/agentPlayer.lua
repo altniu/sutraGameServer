@@ -271,7 +271,7 @@ skynet.register_protocol {
 }
 
 function CMD.pushUserData(type, data)
-	log("pushUserData", type, data)
+	print("pushUserData", type, data)
 	send_package(packMsg("pushUserData", {type=type, data=tostring(data)}))
 end
 
