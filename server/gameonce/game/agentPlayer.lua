@@ -175,6 +175,7 @@ function REQUEST:updateUserData()
 			
 			CMD.pushUserData("censerNum", pinfo.censerNum)
 			skynet.call("db_service", "lua", "updateUserUpdate", pinfo.uuid, "censerNum", pinfo.censerNum)
+			skynet.call("db_service", "lua", "updateUserUpdate", pinfo.uuid, "incenseLastTime", pinfo.incenseLastTime)
 		else
 			return {errCode=1, desc="today already senserd"}
 		end
