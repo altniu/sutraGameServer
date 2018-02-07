@@ -31,6 +31,7 @@ local pinfo = {
 	sutraRank = 0,
 	jingtuGroup = "",
 	lotusNum = 0,
+	fohaoNum = 0,--佛号总数
 	phoneType = "",
 	signLine = 0,
 	mouth = 0,
@@ -123,6 +124,7 @@ function REQUEST:totalPush()
 		pinfo.totalRank = r.totalRank
 		pinfo.incenseLastTime = r.incenseLastTime
 		pinfo.sutraLastTime = r.sutraLastTime
+		pinfo.fohaoNum = r.fohaoNum
 	end
 	
 	r = skynet.call("db_service", "lua", "getUserMonthCollect", self.uuid)
@@ -210,9 +212,10 @@ function REQUEST:updateUserData()
 		end
 	
 		--保存佛句,增加得分
-		local addScore = tonumber(s[2])
+		local addScore = math.max(0, tonumber(s[2]))
 		local lastScore = pinfo.musicScore[s[1]]
 		pinfo.musicScore[s[1]] = pinfo.musicScore[s[1]] + addScore
+		pinfo.fohaoNum = pinfo.fohaoNum + addScore
 		local fh = ""
 		for k,v in pairs(pinfo.musicScore) do
 			fh = fh .. "k" .. ":" .. v .. ","
@@ -222,6 +225,7 @@ function REQUEST:updateUserData()
 		end
 		CMD.pushUserData("fohaoGroup", pinfo.fohaoGroup)
 		skynet.call("db_service", "lua", "updateMonthCollect", pinfo.uuid, "fohaoGroup", pinfo.fohaoGroup)
+		skynet.call("db_service", "lua", "updateUserUpdate", pinfo.uuid, "fohaoNum", pinfo.fohaoNum)
 		
 		local totalScore = 0
 		local songList, jingtu = skynet.call(game_root, "lua", "getJingtuListIdWithSongId", tonumber(s[1]))

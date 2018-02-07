@@ -109,7 +109,12 @@ end
 
 function CMD.getUserUpdateData(uuid)
 	if not uuid or "string" ~= type(uuid) then 
-		return false
+		local sql = "select * from " .. tbl_userUpdateData
+		print(sql)
+		res = db:query(sql)
+		assert(res, serviceName .. ",getUserMonthCollect")
+		printTable(res)
+		return res
 	end
 	
 	local sql = "select * from " .. tbl_userUpdateData .. " where uuid = \'" .. uuid .. "\'"
@@ -190,9 +195,9 @@ function CMD.register(uuid, phone, userData)
 	assert(res, serviceName .. ",register uuid = " .. uuid .. " error "  .. tbl_userBaseData)
 	
 	
-	sql = string.format([[insert into %s(uuid, incenseLastTime, sutraLastTime, signNum, censerNum, sutraNum, signRank, censerRank, sutraRank, totalRank) 
+	sql = string.format([[insert into %s(uuid, incenseLastTime, sutraLastTime, signNum, censerNum, sutraNum, fohaoNum, signRank, censerRank, sutraRank, totalRank) 
 								values('%s', %d, %d, %d, %d, %d, %d, %d, %d, %d);]], 
-				tbl_userUpdateData, uuid, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+				tbl_userUpdateData, uuid, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 	print(sql)	
 	res = db:query(sql)
 	assert(res, serviceName .. ",register uuid = " .. uuid .. " error "  .. tbl_userUpdateData)	
