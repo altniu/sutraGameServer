@@ -40,8 +40,6 @@ end
 
 function init()
 	songCsv = csvParse.LoadMusicRhythm("server/gameonce/game/songData.csv")
-	
-	local rankService = skynet.newservice("rankService")
 end
 
 skynet.start(function()

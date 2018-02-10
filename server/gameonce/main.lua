@@ -14,7 +14,10 @@ skynet.start(function()
 	--game service
 	skynet.uniqueservice("protoloader")
 	local gameRoot = skynet.newservice("gameRoot")
-
+	
+	--rank service
+	local rankService = skynet.newservice("rankService")
+	
 	local watchdog = skynet.newservice("watchdog")
 	skynet.call(watchdog, "lua", "start", {
 		address="47.91.176.170",
