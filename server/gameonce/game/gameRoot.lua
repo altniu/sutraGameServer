@@ -41,7 +41,7 @@ end
 function init()
 	songCsv = csvParse.LoadMusicRhythm("server/gameonce/game/songData.csv")
 	
-	local totalRankService = skynet.newservice("totalRankService")
+	local rankService = skynet.newservice("rankService")
 end
 
 skynet.start(function()

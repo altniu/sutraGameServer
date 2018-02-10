@@ -155,8 +155,10 @@ function REQUEST:totalPush()
 	return ret
 end
 
-local function updateTotalRank()
-	
+local function updateSignRank()
+	skynet.call("rankService", "lua", "updateSign", pinfo.uuid, "signNum", pinfo.signNum)
+	local r = skynet.call("rankService", "lua", "getSignRank", self.uuid)
+	CMD.pushUserData("signRank", r or 0)
 end
 
 function REQUEST:updateUserData()
@@ -176,6 +178,8 @@ function REQUEST:updateUserData()
 		
 		skynet.call("db_service", "lua", "updateMonthCollect", pinfo.uuid, "signLine", pinfo.signLine)
 		skynet.call("db_service", "lua", "updateUserUpdate", pinfo.uuid, "signNum", pinfo.signNum)
+		updateSignRank()
+		
 	end
 	if "censerNum" == self.type then
 		local ser = getDayByTime(pinfo.ostime)
