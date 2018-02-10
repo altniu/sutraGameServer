@@ -16,6 +16,7 @@ local m_totalMap = {}
 
 local rankCount = 4
 
+
 local function printTable(lua_table, indent)
     if not lua_table then
         return
@@ -265,14 +266,15 @@ function CMD.getTotalRank(uuid)
 end
 
 skynet.start(function()
+	print("rankService start")
+	
 	skynet.dispatch("lua", function(_,_, command, ...)
 		print("agent dispatch lua:", command)
 		local f = CMD[command]
 		skynet.ret(skynet.pack(f(...)))
 	end)
 	
-	skynet.register("rankService")
 	init()
 	
-	print("totalRank service started")
+	skynet.register("rankService")	
 end)
