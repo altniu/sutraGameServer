@@ -155,10 +155,33 @@ function REQUEST:totalPush()
 	return ret
 end
 
+local function updateTotalRank()
+	local r = skynet.call("rankService", "lua", "getTotalRank", self.uuid)
+	CMD.pushUserData("totalRank", r or 0)
+end
 local function updateSignRank()
-	skynet.call("rankService", "lua", "updateSign", pinfo.uuid, "signNum", pinfo.signNum)
+	skynet.call("rankService", "lua", "updateSign", pinfo.uuid, pinfo.signNum)
 	local r = skynet.call("rankService", "lua", "getSignRank", self.uuid)
 	CMD.pushUserData("signRank", r or 0)
+	updateTotalRank()	
+end
+local function updateCenserRank()
+	skynet.call("rankService", "lua", "updateCenser", pinfo.uuid, pinfo.censerNum)
+	local r = skynet.call("rankService", "lua", "getCenserRank", self.uuid)
+	CMD.pushUserData("censerRank", r or 0)
+	updateTotalRank()
+end
+local function updateSutraRank()
+	skynet.call("rankService", "lua", "updateSutra", pinfo.uuid, pinfo.sutraNum)
+	local r = skynet.call("rankService", "lua", "getSutraRank", self.uuid)
+	CMD.pushUserData("sutraRank", r or 0)
+	updateTotalRank()
+end
+local function updateFohaoRank()
+	skynet.call("rankService", "lua", "updateFohao", pinfo.uuid, pinfo.fohaoNum)
+	local r = skynet.call("rankService", "lua", "getFohaoRank", self.uuid)
+	
+	updateTotalRank()
 end
 
 function REQUEST:updateUserData()
@@ -192,6 +215,7 @@ function REQUEST:updateUserData()
 			CMD.pushUserData("incenseLastTime", pinfo.incenseLastTime)
 			skynet.call("db_service", "lua", "updateUserUpdate", pinfo.uuid, "censerNum", pinfo.censerNum)
 			skynet.call("db_service", "lua", "updateUserUpdate", pinfo.uuid, "incenseLastTime", pinfo.incenseLastTime)
+			updateCenserRank()
 		else
 			return {errCode=1, desc="today already senserd"}
 		end
@@ -213,6 +237,7 @@ function REQUEST:updateUserData()
 			
 			skynet.call("db_service", "lua", "updateUserUpdate", pinfo.uuid, "sutraNum", pinfo.sutraNum)
 			skynet.call("db_service", "lua", "updateUserUpdate", pinfo.uuid, "sutraLastTime", pinfo.sutraLastTime)
+			updateSutraRank()
 		end
 	
 		--保存佛句,增加得分
@@ -230,6 +255,7 @@ function REQUEST:updateUserData()
 		CMD.pushUserData("fohaoGroup", pinfo.fohaoGroup)
 		skynet.call("db_service", "lua", "updateMonthCollect", pinfo.uuid, "fohaoGroup", pinfo.fohaoGroup)
 		skynet.call("db_service", "lua", "updateUserUpdate", pinfo.uuid, "fohaoNum", pinfo.fohaoNum)
+		updateFohaoRank()
 		
 		local totalScore = 0
 		local songList, jingtu = skynet.call(game_root, "lua", "getJingtuListIdWithSongId", tonumber(s[1]))

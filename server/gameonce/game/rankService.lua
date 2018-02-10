@@ -14,6 +14,8 @@ local m_censerMap = {}
 local m_totalRank = {}
 local m_totalMap = {}
 
+local rankCount = 4
+
 local function printTable(lua_table, indent)
     if not lua_table then
         return
@@ -127,10 +129,10 @@ local function updateRank(uuid, num, rankMap, rank)
 		end
 		t = t+1
 		if t < srcIndex then
-			for i=srcIndex, t-1, -1 do
-				rank[srcIndex][1] = rank[srcIndex-1][1]
-				rank[srcIndex][2] = rank[srcIndex-1][2]
-				rankMap[rank[srcIndex-1][1]] = srcIndex
+			for i=srcIndex, t+1, -1 do
+				rank[i][1] = rank[i-1][1]
+				rank[i][2] = rank[i-1][2]
+				rankMap[rank[i-1][1]] = i
 			end
 			rank[t][1] = uuid
 			rank[t][2] = num
@@ -141,17 +143,17 @@ end
 
 local function updateTotalRank(uuid, num, matchIndex)
 	local srcIndex = m_totalMap[uuid]
-	if not srcIndex then
+	if not srcIndex or matchIndex > rankCount or matchIndex < 2 then
 		return
 	end
 	
 	m_totalRank[srcIndex][matchIndex] = num
 	
-	local n = srcIndex-1
-	while n>=1 do
+	local t = srcIndex-1
+	while t>=1 do
 		local bigger = false
 		for i=1, matchIndex do
-			if m_totalRank[n][i] > m_totalRank[srcIndex][i] then
+			if m_totalRank[t][i] > m_totalRank[srcIndex][i] then
 				bigger = true
 				break
 			end
@@ -160,25 +162,41 @@ local function updateTotalRank(uuid, num, matchIndex)
 			break
 		end
 		
-		if m_totalRank[n][matchIndex] > m_totalRank[srcIndex][matchIndex] then
-			break
-		elseif m_totalRank[n][matchIndex] == m_totalRank[srcIndex][matchIndex] then
-			local bigger = true
-			if matchIndex < 5 then
-				
+		for i=matchIndex+1, rankCount do
+			if m_totalRank[t][i] > m_totalRank[srcIndex][i] then
+				bigger = true
+				break
 			end
 		end
-		n = n-1
-	end
-	n = n+1
-	
-	if n < srcIndex then
+		if bigger then
+			break
+		end
 		
+		t = t-1
+	end
+	t = t+1
+	
+	if t < srcIndex then
+		local srcCopy = {}
+		for i=1, rankCount do srcCopy[i] = m_totalRank[srcIndex][i] end
+		
+		for i=srcIndex, t+1, -1 do
+			for j=1, rankCount do
+				m_totalRank[i][j] = m_totalRank[i-1][j]
+			end
+			m_totalMap[m_totalRank[i][1]] = i
+		end
+		
+		for j=1, rankCount do
+			m_totalRank[t][j] = srcCopy[j]			
+		end
+		m_totalMap[m_totalRank[t][1]] = t
 	end
 end
 
 function CMD.updateSutra(uuid, num)
 	updateRank(uuid, num, m_sutraMap, m_sutraRank)
+	updateTotalRank(uuid, num, 2)
 end
 function CMD.getSutraRank(uuid)
 	return m_sutraMap[uuid] or 0
@@ -186,6 +204,7 @@ end
 
 function CMD.updateFohao(uuid, num)
 	updateRank(uuid, num, m_fohaoMap, m_fohaoRank)
+	updateTotalRank(uuid, num, 3)
 end
 function CMD.getFohaoRank(uuid)
 	return m_fohaoMap[uuid] or 0
@@ -193,6 +212,7 @@ end
 
 function CMD.updateSign(uuid, num)
 	updateRank(uuid, num, m_signMap, m_signRank)
+	updateTotalRank(uuid, num, 4)
 end
 function CMD.getSignRank(uuid)
 	return m_signMap[uuid] or 0
@@ -200,12 +220,14 @@ end
 
 function CMD.updateCenser(uuid, num)
 	updateRank(uuid, num, m_censerMap, m_censerRank)
+	updateTotalRank(uuid, num, 5)
 end
 function CMD.getCenserRank(uuid)
 	return m_censerMap[uuid] or 0
 end
 
 function CMD.getTotalRank(uuid)
+	return m_totalMap[uuid] or 0
 	--[[local sutraRank = m_sutraMap[uuid]
 	local sutraParal = {}
 	if sutraRank then
