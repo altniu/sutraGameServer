@@ -99,30 +99,30 @@ end
 
 
 local function updateTotalRank()
-	local r = skynet.call("rankService", "lua", "getTotalRank", self.uuid)
+	local r = skynet.call("rankService", "lua", "getTotalRank", pinfo.uuid)
 	CMD.pushUserData("totalRank", r or 0)
 end
 local function updateSignRank()
 	skynet.call("rankService", "lua", "updateSign", pinfo.uuid, pinfo.signNum)
-	local r = skynet.call("rankService", "lua", "getSignRank", self.uuid)
+	local r = skynet.call("rankService", "lua", "getSignRank", pinfo.uuid)
 	CMD.pushUserData("signRank", r or 0)
 	updateTotalRank()	
 end
 local function updateCenserRank()
 	skynet.call("rankService", "lua", "updateCenser", pinfo.uuid, pinfo.censerNum)
-	local r = skynet.call("rankService", "lua", "getCenserRank", self.uuid)
+	local r = skynet.call("rankService", "lua", "getCenserRank", pinfo.uuid)
 	CMD.pushUserData("censerRank", r or 0)
 	updateTotalRank()
 end
 local function updateSutraRank()
 	skynet.call("rankService", "lua", "updateSutra", pinfo.uuid, pinfo.sutraNum)
-	local r = skynet.call("rankService", "lua", "getSutraRank", self.uuid)
+	local r = skynet.call("rankService", "lua", "getSutraRank", pinfo.uuid)
 	CMD.pushUserData("sutraRank", r or 0)
 	updateTotalRank()
 end
 local function updateFohaoRank()
 	skynet.call("rankService", "lua", "updateFohao", pinfo.uuid, pinfo.fohaoNum)
-	local r = skynet.call("rankService", "lua", "getFohaoRank", self.uuid)
+	local r = skynet.call("rankService", "lua", "getFohaoRank", pinfo.uuid)
 	
 	updateTotalRank()
 end
@@ -273,7 +273,6 @@ function REQUEST:totalPush()
 	pinfo.ostime = os.time()
 	
 	local totalRank = skynet.call("rankService", "lua", "getTotalRank", self.uuid)
-	print("=============totalRank:", totalRank)
 	local ret = {incenseLastTime=pinfo.incenseLastTime, sutraLastTime=pinfo.sutraLastTime, totalRank=totalRank, 
 			signNum=pinfo.signNum, signRank=pinfo.signRank,
 			censerNum=pinfo.censerNum, censerRank=pinfo.censerRank, sutraNum=pinfo.sutraNum,
