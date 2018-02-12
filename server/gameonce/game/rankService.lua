@@ -130,6 +130,8 @@ local function init()
 		printTable(m_totalRank)
 		printTable(m_totalMap)
 	end
+	
+	printRank()
 end
 
 local function updateRank(uuid, num, rankMap, rank)
