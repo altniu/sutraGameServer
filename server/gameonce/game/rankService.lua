@@ -113,16 +113,23 @@ local function init()
 	for i=1, #m_censerRank do m_censerMap[m_censerRank[i][1]] = i end
 	for i=1, #m_totalRank do m_totalMap[m_totalRank[i][1]] = i end	
 	
-	print("-------------m_sutraRank-------------")
-	printTable(m_sutraRank)
-	print("-------------m_fohaoRank-------------")
-	printTable(m_fohaoRank)
-	print("-------------m_signRank-------------")
-	printTable(m_signRank)
-	print("-------------m_censerRank-------------")
-	printTable(m_censerRank)
-	print("-------------m_totalRank-------------")
-	printTable(m_totalRank)
+	local function printRank()
+		print("-------------m_sutraRank-------------")
+		printTable(m_sutraRank)
+		printTable(m_sutraMap)
+		print("-------------m_fohaoRank-------------")
+		printTable(m_fohaoRank)
+		printTable(m_fohaoMap)
+		print("-------------m_signRank-------------")
+		printTable(m_signRank)
+		printTable(m_signMap)
+		print("-------------m_censerRank-------------")
+		printTable(m_censerRank)
+		printTable(m_censerMap)
+		print("-------------m_totalRank-------------")
+		printTable(m_totalRank)
+		printTable(m_totalMap)
+	end
 end
 
 local function updateRank(uuid, num, rankMap, rank)
@@ -239,6 +246,8 @@ function CMD.getCenserRank(uuid)
 end
 
 function CMD.getTotalRank(uuid)
+	print("getTotalRank", uuid)
+	printTable(m_totalMap)
 	return m_totalMap[uuid] or 0
 	--[[local sutraRank = m_sutraMap[uuid]
 	local sutraParal = {}
