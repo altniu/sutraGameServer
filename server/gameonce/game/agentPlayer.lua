@@ -98,63 +98,6 @@ end
 
 
 
-function REQUEST:totalPush()
-	local r = skynet.call("db_service", "lua", "getUserBaseData", self.uuid)
-	print("REQUEST:totalPush.getUserBaseData")
-	printTable(r)
-	
-	if r then
-		pinfo.uuid = r.uuid
-		pinfo.registerTime = r.registerTime
-		pinfo.jingtuGroup = r.jingtuGroup
-		pinfo.lotusNum = r.lotusNum
-		pinfo.phoneType = r.phoneType
-	end
-	
-	r = skynet.call("db_service", "lua", "getUserUpdateData", self.uuid)
-	print("REQUEST:totalPush.getUserUpdateData")
-	printTable(r)
-	if r then
-		pinfo.signNum = r.signNum
-		pinfo.censerNum = r.censerNum
-		pinfo.sutraNum = r.sutraNum
-		pinfo.signRank = r.signRank
-		pinfo.censerRank = r.censerRank
-		pinfo.sutraRank = r.sutraRank
-		pinfo.totalRank = r.totalRank
-		pinfo.incenseLastTime = r.incenseLastTime
-		pinfo.sutraLastTime = r.sutraLastTime
-		pinfo.fohaoNum = r.fohaoNum
-	end
-	
-	r = skynet.call("db_service", "lua", "getUserMonthCollect", self.uuid)
-	print("REQUEST:totalPush.getUserMonthCollect")
-	printTable(r)
-	if r then
-		--signLine, mouth, fohaoGroup
-		pinfo.signLine = r.signLine
-		pinfo.mouth = r.mouth
-		pinfo.fohaoGroup = r.fohaoGroup
-		local scores = split(r.fohaoGroup, ",")
-		for k,v in pairs(scores) do
-			local s = split(v, ":")
-			pinfo.musicScore[s[1]] = tonumber(s[2])
-		end
-	end
-	
-	pinfo.ostime = os.time()
-	
-	local ret = {incenseLastTime=pinfo.incenseLastTime, sutraLastTime=pinfo.sutraLastTime, totalRank=pinfo.totalRank, 
-			signNum=pinfo.signNum, signRank=pinfo.signRank,
-			censerNum=pinfo.censerNum, censerRank=pinfo.censerRank, sutraNum=pinfo.sutraNum,
-			sutraRank=pinfo.sutraRank, jingtuGroup=pinfo.jingtuGroup, lotusNum=pinfo.lotusNum,
-			signLine=pinfo.signLine, serverTime=pinfo.ostime, fohaoGroup=pinfo.fohaoGroup}
-			
-	printTable(ret)
-	
-	return ret
-end
-
 local function updateTotalRank()
 	local r = skynet.call("rankService", "lua", "getTotalRank", self.uuid)
 	CMD.pushUserData("totalRank", r or 0)
@@ -284,6 +227,64 @@ function REQUEST:updateUserData()
 end
 
 
+
+function REQUEST:totalPush()
+	local r = skynet.call("db_service", "lua", "getUserBaseData", self.uuid)
+	print("REQUEST:totalPush.getUserBaseData")
+	printTable(r)
+	
+	if r then
+		pinfo.uuid = r.uuid
+		pinfo.registerTime = r.registerTime
+		pinfo.jingtuGroup = r.jingtuGroup
+		pinfo.lotusNum = r.lotusNum
+		pinfo.phoneType = r.phoneType
+	end
+	
+	r = skynet.call("db_service", "lua", "getUserUpdateData", self.uuid)
+	print("REQUEST:totalPush.getUserUpdateData")
+	printTable(r)
+	if r then
+		pinfo.signNum = r.signNum
+		pinfo.censerNum = r.censerNum
+		pinfo.sutraNum = r.sutraNum
+		pinfo.signRank = r.signRank
+		pinfo.censerRank = r.censerRank
+		pinfo.sutraRank = r.sutraRank
+		pinfo.totalRank = r.totalRank
+		pinfo.incenseLastTime = r.incenseLastTime
+		pinfo.sutraLastTime = r.sutraLastTime
+		pinfo.fohaoNum = r.fohaoNum
+	end
+	
+	r = skynet.call("db_service", "lua", "getUserMonthCollect", self.uuid)
+	print("REQUEST:totalPush.getUserMonthCollect")
+	printTable(r)
+	if r then
+		--signLine, mouth, fohaoGroup
+		pinfo.signLine = r.signLine
+		pinfo.mouth = r.mouth
+		pinfo.fohaoGroup = r.fohaoGroup
+		local scores = split(r.fohaoGroup, ",")
+		for k,v in pairs(scores) do
+			local s = split(v, ":")
+			pinfo.musicScore[s[1]] = tonumber(s[2])
+		end
+	end
+	
+	pinfo.ostime = os.time()
+	
+	local totalRank = skynet.call("rankService", "lua", "getTotalRank", self.uuid)
+	local ret = {incenseLastTime=pinfo.incenseLastTime, sutraLastTime=pinfo.sutraLastTime, totalRank=totalRank, 
+			signNum=pinfo.signNum, signRank=pinfo.signRank,
+			censerNum=pinfo.censerNum, censerRank=pinfo.censerRank, sutraNum=pinfo.sutraNum,
+			sutraRank=pinfo.sutraRank, jingtuGroup=pinfo.jingtuGroup, lotusNum=pinfo.lotusNum,
+			signLine=pinfo.signLine, serverTime=pinfo.ostime, fohaoGroup=pinfo.fohaoGroup}
+			
+	printTable(ret)
+	
+	return ret
+end
 
 
 function REQUEST:quit()
