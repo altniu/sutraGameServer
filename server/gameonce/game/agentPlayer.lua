@@ -272,11 +272,14 @@ function REQUEST:totalPush()
 	
 	pinfo.ostime = os.time()
 	
-	local totalRank = skynet.call("rankService", "lua", "getTotalRank", self.uuid)
-	local ret = {incenseLastTime=pinfo.incenseLastTime, sutraLastTime=pinfo.sutraLastTime, totalRank=totalRank, 
+	local ret = {incenseLastTime=pinfo.incenseLastTime, sutraLastTime=pinfo.sutraLastTime, 
+			totalRank=skynet.call("rankService", "lua", "getTotalRank", self.uuid), 
 			signNum=pinfo.signNum, signRank=pinfo.signRank,
-			censerNum=pinfo.censerNum, censerRank=pinfo.censerRank, sutraNum=pinfo.sutraNum,
-			sutraRank=pinfo.sutraRank, jingtuGroup=pinfo.jingtuGroup, lotusNum=pinfo.lotusNum,
+			censerNum=pinfo.censerNum, 
+			censerRank=skynet.call("rankService", "lua", "getCenserRank", self.uuid), 
+			sutraNum=pinfo.sutraNum,
+			sutraRank=skynet.call("rankService", "lua", "getSutraRank", self.uuid), 
+			jingtuGroup=pinfo.jingtuGroup, lotusNum=pinfo.lotusNum,
 			signLine=pinfo.signLine, serverTime=pinfo.ostime, fohaoGroup=pinfo.fohaoGroup}
 			
 	printTable(ret)
