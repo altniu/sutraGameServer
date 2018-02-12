@@ -298,5 +298,5 @@ skynet.start(function()
 	
 	init()
 	
-	--skynet.register("rankService")
+	skynet.register("rankService")
 end)

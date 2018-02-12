@@ -258,8 +258,6 @@ function REQUEST:totalPush()
 	end
 	
 	r = skynet.call("db_service", "lua", "getUserMonthCollect", self.uuid)
-	print("REQUEST:totalPush.getUserMonthCollect")
-	printTable(r)
 	if r then
 		--signLine, mouth, fohaoGroup
 		pinfo.signLine = r.signLine
