@@ -1,4 +1,5 @@
 local skynet = require "skynet"
+require "skynet.manager"
 --local netpack = require "netpack"
 --local sproto_core = require "sproto.core"
 
