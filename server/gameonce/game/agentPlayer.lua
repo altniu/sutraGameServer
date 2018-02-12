@@ -275,7 +275,7 @@ function REQUEST:totalPush()
 	pinfo.ostime = os.time()
 	
 	local totalRank = skynet.call("rankService", "lua", "getTotalRank", self.uuid)
-	print("totalRank:", totalRank)
+	print("=============totalRank:", totalRank)
 	local ret = {incenseLastTime=pinfo.incenseLastTime, sutraLastTime=pinfo.sutraLastTime, totalRank=totalRank, 
 			signNum=pinfo.signNum, signRank=pinfo.signRank,
 			censerNum=pinfo.censerNum, censerRank=pinfo.censerRank, sutraNum=pinfo.sutraNum,
