@@ -112,6 +112,12 @@ local function init()
 	for i=1, #m_signRank do m_signMap[m_signRank[i][1]] = i end
 	for i=1, #m_censerRank do m_censerMap[m_censerRank[i][1]] = i end
 	for i=1, #m_totalRank do m_totalMap[m_totalRank[i][1]] = i end	
+	
+	printTable("m_sutraRank", "m_sutraRank")
+	printTable("m_fohaoRank", "m_fohaoRank")
+	printTable("m_signRank", "m_signRank")
+	printTable("m_censerRank", "m_censerRank")
+	printTable("m_totalRank", "m_totalRank")
 end
 
 local function updateRank(uuid, num, rankMap, rank)

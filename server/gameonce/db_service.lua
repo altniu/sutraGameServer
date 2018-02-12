@@ -79,7 +79,7 @@ function CMD.getUserBaseData(uuid)
 	end
 	
 	local sql = "select * from " .. tbl_userBaseData .. " where uuid = \'" .. uuid .. "\'"
-	print(sql)
+	--print(sql)
 	res = db:query(sql)
 	if not res then
 		print(serviceName .. ",getUserBaseData uuid = " .. uuid .. " error")
@@ -110,18 +110,18 @@ end
 function CMD.getUserUpdateData(uuid)
 	if not uuid or "string" ~= type(uuid) then 
 		local sql = "select * from " .. tbl_userUpdateData
-		print(sql)
+		--print(sql)
 		res = db:query(sql)
 		assert(res, serviceName .. ",getUserMonthCollect")
-		printTable(res)
+		--printTable(res)
 		return res
 	end
 	
 	local sql = "select * from " .. tbl_userUpdateData .. " where uuid = \'" .. uuid .. "\'"
-	print(sql)
+	--print(sql)
 	res = db:query(sql)
 	assert(res, serviceName .. ",getUserMonthCollect uuid = " .. uuid .. " error")
-	printTable(res)
+	--printTable(res)
 	
 	local data = {}
 	for k,v in pairs(res) do
@@ -150,10 +150,10 @@ function CMD.getUserMonthCollect(uuid)
 	end
 	
 	local sql = "select * from " .. tbl_monthCollect .. " where uuid = \'" .. uuid .. "\'"
-	print(sql)
+	--print(sql)
 	res = db:query(sql)
 	assert(res, serviceName .. ",getUserMonthCollect uuid = " .. uuid .. " error")
-	printTable(res)
+	--printTable(res)
 	
 	local data = {}
 	for k,v in pairs(res) do
@@ -184,13 +184,13 @@ function CMD.register(uuid, phone, userData)
 		return false
 	end
 
-	print("new user ："..uuid .. ", size=" .. string.len(uuid))
+	--print("new user ："..uuid .. ", size=" .. string.len(uuid))
 	local res
 	
 	local sql = string.format([[insert into %s(uuid, registerTime, jingtuGroup, lotusNum, phoneType, userData) 
 								values('%s', %d, '%s', %d, '%s', '%s');]], 
 				tbl_userBaseData, uuid, os.time(), "", 0, phone or "", userData or "")
-	print(sql)	
+	--print(sql)	
 	res = db:query(sql)
 	assert(res, serviceName .. ",register uuid = " .. uuid .. " error "  .. tbl_userBaseData)
 	
@@ -198,18 +198,18 @@ function CMD.register(uuid, phone, userData)
 	sql = string.format([[insert into %s(uuid, incenseLastTime, sutraLastTime, signNum, censerNum, sutraNum, fohaoNum, signRank, censerRank, sutraRank, totalRank) 
 								values('%s', %d, %d, %d, %d, %d, %d, %d, %d, %d);]], 
 				tbl_userUpdateData, uuid, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-	print(sql)	
+	--print(sql)	
 	res = db:query(sql)
 	assert(res, serviceName .. ",register uuid = " .. uuid .. " error "  .. tbl_userUpdateData)	
-	printTable(res)
+	--printTable(res)
 	
 	--uuid, signLine, mouth, fohaoGroup
 	sql = string.format("insert into %s(uuid, signLine, month, fohaoGroup) values('%s',%d, %d, '%s');", 
 				tbl_monthCollect, uuid, 0, 0, "")
-	print(sql)
+	--print(sql)
 	res = db:query(sql)
 	assert(res, serviceName .. ",register uuid = " .. uuid .. " error "  .. tbl_monthCollect)
-	printTable(res)
+	--printTable(res)
 	
 	return true
 end
