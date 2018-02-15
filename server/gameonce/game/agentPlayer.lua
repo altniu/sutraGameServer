@@ -128,6 +128,8 @@ local function updateFohaoRank()
 end
 
 function REQUEST:updateUserData()
+	print("REQUEST:updateUserData", pinfo.uuid, self.type, self.data)
+	
 	if not pinfo[self.type] then
 		return {errCode = 1, desc = "cant find this type : " .. self.type}
 	end
@@ -274,7 +276,8 @@ function REQUEST:totalPush()
 	
 	local ret = {incenseLastTime=pinfo.incenseLastTime, sutraLastTime=pinfo.sutraLastTime, 
 			totalRank=skynet.call("rankService", "lua", "getTotalRank", self.uuid), 
-			signNum=pinfo.signNum, signRank=pinfo.signRank,
+			signNum=pinfo.signNum, 
+			signRank=skynet.call("rankService", "lua", "getSignRank", self.uuid), 
 			censerNum=pinfo.censerNum, 
 			censerRank=skynet.call("rankService", "lua", "getCenserRank", self.uuid), 
 			sutraNum=pinfo.sutraNum,
