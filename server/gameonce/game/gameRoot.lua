@@ -10,6 +10,39 @@ local players = {}
 local rooms = {}
 local songCsv = {}
 
+local function printTable(lua_table, indent)
+    if not lua_table then
+        return
+    end
+    indent = indent or 0
+    for k, v in pairs(lua_table) do
+        if type(k) == "string" then
+            k = string.format("%q", k)
+        end
+        local szSuffix = ""
+        if type(v) == "table" then
+            szSuffix = "{"
+        end
+        local szPrefix = string.rep("    ", indent)
+        local formatting = szPrefix.."["..k.."]".." = "..szSuffix
+        if type(v) == "table" then
+            print(formatting)
+            printTable(v, indent + 1)
+            print(szPrefix.."},")
+        else
+            local szValue = ""
+            if type(v) == "string" then
+                szValue = string.format("%q", v)
+            else
+                szValue = tostring(v)
+            end
+            print(formatting..szValue..",")
+        end
+    end
+end
+
+
+
 function CMD.playerOnline(agent, fd)
 	players[fd] = agent
 end
@@ -17,22 +50,29 @@ function CMD.playerOffline(agent, fd)
 	players[fd] = nil
 end
 
-function CMD.getJingtuListIdWithSongId(id)
+function CMD.getJingtuListIdWithSongId(findId)
 	local ret = {}
 	local jingtu = ""
+	
+	print("---------A")
+	printTable(songCsv)
+	
+	local id = tonumber(findId) or 0
 	for k,v in pairs(songCsv) do
 		if v.id == id then
 			jingtu = v.jingtuId
 			break
 		end
 	end
+	print("---------B", jingtu)
 	
 	for k,v in pairs(songCsv) do
-		if v.jingtuId == jingtuId then
+		if v.jingtuId == jingtu then
 			ret[#ret+1] = v.id
 		end
 	end
-	
+	print("---------C")
+	printTable(ret)
 	return ret, jingtu
 end
 
