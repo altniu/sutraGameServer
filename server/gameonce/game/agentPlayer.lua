@@ -189,7 +189,7 @@ function REQUEST:updateUserData()
 		pinfo.fohaoNum = pinfo.fohaoNum + addScore
 		local fh = ""
 		for k,v in pairs(pinfo.musicScore) do
-			fh = fh .. "k" .. ":" .. v .. ","
+			fh = fh .. k .. ":" .. v .. ","
 		end
 		if string.len(fh) > 0 then
 			pinfo.fohaoGroup = string.sub(fh, 1, -2)

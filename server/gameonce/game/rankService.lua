@@ -217,7 +217,10 @@ local function updateTotalRank(uuid, num, matchIndex)
 end
 
 function CMD.updateSutra(uuid, num)
+	print("rankService.updateSutra:", uuid, num)
 	updateRank(uuid, num, m_sutraMap, m_sutraRank)
+	printTable(m_sutraMap)
+	printTable(m_sutraRank)
 	updateTotalRank(uuid, num, 2)
 end
 function CMD.getSutraRank(uuid)
