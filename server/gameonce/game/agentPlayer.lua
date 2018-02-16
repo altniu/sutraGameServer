@@ -130,10 +130,6 @@ end
 function REQUEST:updateUserData()
 	print("REQUEST:updateUserData", pinfo.uuid, self.type, self.data)
 	
-	if not pinfo[self.type] then
-		return {errCode = 1, desc = "cant find this type : " .. self.type}
-	end
-
 	if self.ostime ~= pinfo.ostime then
 		return {errCode=1, desc="err ostime"}
 	end
