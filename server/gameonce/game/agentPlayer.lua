@@ -201,6 +201,7 @@ function REQUEST:updateUserData()
 		
 		local totalScore = 0
 		local songList, jingtu = skynet.call(game_root, "lua", "getJingtuListIdWithSongId", tonumber(s[1]))
+		print("songList, jingtu ", songList, jingtu )
 		if songList then
 			for k,v in pairs(songList) do
 				if pinfo.musicScore[v] then
@@ -210,7 +211,7 @@ function REQUEST:updateUserData()
 		end
 		
 		--敲击了3W下
-		if totalScore - addScore < 30000 then
+		if totalScore - addScore > 30000 then
 			local s1, s2 = string.find(pinfo.jingtuGroup, jingtu, 1, true)
 			s1, s2 = string.find(pinfo.jingtuGroup, ":", s2+1, true)
 			local s3 = string.find(pinfo.jingtuGroup, ",", s2+1, true)
