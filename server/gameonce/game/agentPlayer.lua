@@ -212,6 +212,7 @@ function REQUEST:updateUserData()
 		end
 		
 		--一个月内累计敲3万下佛号
+		print("totalScore, addScore", totalScore, addScore)
 		if totalScore > 30000 and totalScore - addScore < 30000 then
 			local s1, s2 = string.find(pinfo.jingtuGroup, jingtu, 1, true)
 			s1, s2 = string.find(pinfo.jingtuGroup, ":", s2+1, true)
