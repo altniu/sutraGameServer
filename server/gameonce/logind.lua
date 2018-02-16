@@ -42,6 +42,7 @@ function server.auth_handler(token)
 	else
 		print("new user login, uuid = " .. uuid .. ",size=" .. string.len(uuid) .. ", phone = " .. phone)
 		skynet.call("db_service", "lua", "register", uuid, phone)
+		skynet.call("rankService", "lua", "addNewUUID", uuid)
 	end
 	user_cacheTable[uuid] = true
 	

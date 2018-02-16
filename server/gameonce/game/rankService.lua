@@ -291,6 +291,20 @@ function CMD.getTotalRank(uuid)
 	end--]]
 end
 
+function CMD.addNewUUID(uuid)
+	m_sutraRank[#m_sutraRank+1] = {uuid, 0}
+	m_fohaoRank[#m_fohaoRank+1] = {uuid, 0}
+	m_signRank[#m_signRank+1] = {uuid, 0}
+	m_censerRank[#m_censerRank+1] = {uuid, 0}
+	m_totalRank[#m_totalRank+1] = {uuid, 0, 0, 0, 0}
+	
+	m_sutraMap[uuid] = #m_sutraRank
+	m_fohaoMap[uuid] = #m_fohaoRank
+	m_signMap[uuid] = #m_signRank
+	m_censerMap[uuid] = #m_censerRank
+	m_totalMap[uuid] = #m_totalRank
+end
+
 skynet.start(function()
 	print("rankService start")
 	
