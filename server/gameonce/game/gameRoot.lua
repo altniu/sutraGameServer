@@ -57,7 +57,7 @@ function CMD.getJingtuListIdWithSongId(findId)
 	print("---------A")
 	printTable(songCsv)
 	
-	local id = tonumber(findId) or 0
+	local id = tostring(findId)
 	for k,v in pairs(songCsv) do
 		if v.id == id then
 			jingtu = v.jingtuId
