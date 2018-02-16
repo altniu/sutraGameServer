@@ -201,7 +201,8 @@ function REQUEST:updateUserData()
 		
 		local totalScore = 0
 		local songList, jingtu = skynet.call(game_root, "lua", "getJingtuListIdWithSongId", tonumber(s[1]))
-		print("songList, jingtu ", songList, jingtu )
+		print("songList, jingtu ", jingtu )
+		printTable(songList)
 		if songList then
 			for k,v in pairs(songList) do
 				if pinfo.musicScore[v] then
