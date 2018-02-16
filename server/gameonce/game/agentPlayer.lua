@@ -257,6 +257,8 @@ function REQUEST:totalPush()
 	end
 	
 	r = skynet.call("db_service", "lua", "getUserMonthCollect", self.uuid)
+	print("REQUEST:totalPush.getUserMonthCollect")
+	printTable(r)
 	if r then
 		--signLine, mouth, fohaoGroup
 		pinfo.signLine = r.signLine
@@ -281,7 +283,7 @@ function REQUEST:totalPush()
 			sutraRank=skynet.call("rankService", "lua", "getSutraRank", self.uuid), 
 			jingtuGroup=pinfo.jingtuGroup, lotusNum=pinfo.lotusNum,
 			signLine=pinfo.signLine, serverTime=pinfo.ostime, fohaoGroup=pinfo.fohaoGroup}
-			
+	
 	printTable(ret)
 	
 	return ret
