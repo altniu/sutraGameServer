@@ -168,7 +168,8 @@ function REQUEST:updateUserData()
 	if "songScore" == self.type then
 		local s = split(self.data, ":")
 		if not pinfo.musicScore[s[1]] then
-			return {errCode=1, desc="cant find the song ", s[1]}
+			--return {errCode=1, desc="cant find the song ", s[1]}
+			pinfo.musicScore[s[1]] = 0
 		end
 				
 		local ser = getDayByTime(pinfo.ostime)
@@ -260,8 +261,6 @@ function REQUEST:totalPush()
 	end
 	
 	r = skynet.call("db_service", "lua", "getUserMonthCollect", self.uuid)
-	print("----------------")
-	printTable(r)
 	if r then
 		--signLine, mouth, fohaoGroup
 		pinfo.signLine = r.signLine
