@@ -13,7 +13,8 @@ skynet.start(function()
 
 	local gameRoot = skynet.newservice("gameRoot")
 
-
+	skynet.newservice("debug_console",8000)
+	
 	local watchdog = skynet.newservice("watchdog")
 	skynet.call(watchdog, "lua", "start", {
 		address="192.168.220.128",
