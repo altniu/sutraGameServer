@@ -32,6 +32,7 @@ local pinfo = {
 	jingtuGroup = "",
 	lotusNum = 0,
 	fohaoNum = 0,--佛号总数
+	fohaoMonthNum = 0,--每月佛号总计
 	phoneType = "",
 	signLine = 0,
 	mouth = 0,
@@ -187,6 +188,8 @@ function REQUEST:updateUserData()
 		local lastScore = pinfo.musicScore[s[1]]
 		pinfo.musicScore[s[1]] = pinfo.musicScore[s[1]] + addScore
 		pinfo.fohaoNum = pinfo.fohaoNum + addScore
+		pinfo.fohaoMonthNum = pinfo.fohaoMonthNum + addScore
+		
 		local fh = ""
 		for k,v in pairs(pinfo.musicScore) do
 			fh = fh .. k .. ":" .. v .. ","
@@ -212,8 +215,8 @@ function REQUEST:updateUserData()
 		end
 		
 		--一个月内累计敲3万下佛号
-		print("totalScore, addScore", totalScore, addScore)
-		if totalScore > 30000 and totalScore - addScore < 30000 then
+		print("totalScore, fohaoMonthNum, addScore", totalScore, pinfo.fohaoMonthNum, addScore)
+		if pinfo.fohaoMonthNum > 30000 and pinfo.fohaoMonthNum - addScore < 30000 then
 			local s1, s2 = string.find(pinfo.jingtuGroup, jingtu, 1, true)
 			s1, s2 = string.find(pinfo.jingtuGroup, ":", s2+1, true)
 			local s3 = string.find(pinfo.jingtuGroup, ",", s2+1, true)
@@ -228,9 +231,9 @@ function REQUEST:updateUserData()
 	return {errCode = 0, desc = ""}
 end
 
-
-
 function REQUEST:totalPush()
+	CMD.sendNoteInfo("欢迎进入彩绘净土世界，请签到后上香，选取经文后开始，敲击木鱼完成功课。")
+	
 	local r = skynet.call("db_service", "lua", "getUserBaseData", self.uuid)
 	print("REQUEST:totalPush.getUserBaseData")
 	printTable(r)
@@ -250,6 +253,7 @@ function REQUEST:totalPush()
 		pinfo.signNum = r.signNum
 		pinfo.censerNum = r.censerNum
 		pinfo.sutraNum = r.sutraNum
+		pinfo.fohaoMonthNum = r.fohaoMonthNum
 		pinfo.signRank = r.signRank
 		pinfo.censerRank = r.censerRank
 		pinfo.sutraRank = r.sutraRank
@@ -284,14 +288,13 @@ function REQUEST:totalPush()
 			censerRank=skynet.call("rankService", "lua", "getCenserRank", self.uuid), 
 			sutraNum=pinfo.sutraNum,
 			sutraRank=skynet.call("rankService", "lua", "getSutraRank", self.uuid), 
-			jingtuGroup=pinfo.jingtuGroup, lotusNum=pinfo.lotusNum,
+			jingtuGroup=pinfo.jingtuGroup, lotusNum=pinfo.lotusNum,fohaoMonthNum=pinfo.fohaoMonthNum,
 			signLine=pinfo.signLine, serverTime=pinfo.ostime, fohaoGroup=pinfo.fohaoGroup}
 	
 	printTable(ret)
 	
 	return ret
 end
-
 
 function REQUEST:quit()
 	skynet.call(WATCHDOG, "lua", "close", fd)
@@ -342,7 +345,9 @@ function CMD.pushUserData(type, data)
 	send_package(packMsg("pushUserData", {type=type, data=tostring(data)}))
 end
 
-
+function CMD.sendNoteInfo(noteStr)
+	send_package(packMsg("sendNote", {note=noteStr}))
+end
 
 
 

@@ -28,6 +28,7 @@ create table userUpdateData
 	censerNum int not null,
 	sutraNum int not null,
 	fohaoNum int not null,
+	fohaoMonthNum int not null,
 	signRank int not null,
 	censerRank int not null,
 	sutraRank int not null,

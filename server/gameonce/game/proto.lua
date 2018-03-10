@@ -35,7 +35,9 @@ totalPush 1 {
 		serverTime 12 : integer
 		fohaoGroup 13 : string
 		
-		first 14 : boolean
+		fohaoMonthNum 14 : integer
+		
+		first 15 : boolean
 	}
 }
 
@@ -64,6 +66,12 @@ pushUserData 2 {
 	request {
 		type 0 : string
 		data 1 : string
+	}
+}
+
+sendNote 3 {
+	request {
+		note 0 	: string
 	}
 }
 
