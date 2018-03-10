@@ -200,6 +200,8 @@ function REQUEST:updateUserData()
 		CMD.pushUserData("fohaoGroup", pinfo.fohaoGroup)
 		skynet.call("db_service", "lua", "updateMonthCollect", pinfo.uuid, "fohaoGroup", pinfo.fohaoGroup)
 		skynet.call("db_service", "lua", "updateUserUpdate", pinfo.uuid, "fohaoNum", pinfo.fohaoNum)
+		skynet.call("db_service", "lua", "updateUserUpdate", pinfo.uuid, "fohaoMonthNum", pinfo.fohaoMonthNum)
+		CMD.pushUserData("fohaoMonthNum", pinfo.fohaoMonthNum)
 		updateFohaoRank()
 		
 		local totalScore = 0
@@ -226,7 +228,6 @@ function REQUEST:updateUserData()
 			
 			skynet.call("db_service", "lua", "updateUserBaseData", pinfo.uuid, "jingtuGroup", pinfo.jingtuGroup)
 		end
-		CMD.pushUserData("fohaoMonthNum", pinfo.fohaoMonthNum)
 	end
 	
 	return {errCode = 0, desc = ""}
