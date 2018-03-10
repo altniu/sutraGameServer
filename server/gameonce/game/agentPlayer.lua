@@ -226,6 +226,7 @@ function REQUEST:updateUserData()
 			
 			skynet.call("db_service", "lua", "updateUserBaseData", pinfo.uuid, "jingtuGroup", pinfo.jingtuGroup)
 		end
+		CMD.pushUserData("fohaoMonthNum", pinfo.fohaoMonthNum)
 	end
 	
 	return {errCode = 0, desc = ""}
