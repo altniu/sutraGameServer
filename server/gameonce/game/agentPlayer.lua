@@ -232,7 +232,7 @@ function REQUEST:updateUserData()
 end
 
 function REQUEST:totalPush()
-	CMD.sendNoteInfo("A欢迎进入彩绘净土世界，请签到后上香，选取经文后开始，敲击木鱼完成功课。A")
+	CMD.sendNoteInfo("欢迎进入彩绘净土世界，请签到后上香，选取经文后开始，敲击木鱼完成功课。")
 	
 	local r = skynet.call("db_service", "lua", "getUserBaseData", self.uuid)
 	print("REQUEST:totalPush.getUserBaseData")
