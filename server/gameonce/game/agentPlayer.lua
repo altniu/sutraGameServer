@@ -164,27 +164,33 @@ function REQUEST:updateUserData()
 	end
 	if "songScore" == self.type then
 		local s = split(self.data, ":")
+		local score = tonumber(s[2]) or 0
 		if not pinfo.musicScore[s[1]] then
 			--return {errCode=1, desc="cant find the song ", s[1]}
 			pinfo.musicScore[s[1]] = 0
 		end
+		
+		--大于100下佛句就算敲成功		
+		if score > 99 then
+			local ser = getDayByTime(pinfo.ostime)
+			local last = getDayByTime(pinfo.sutraLastTime)
+		
+			if ser.year ~= last.year or ser.month ~= last.month or ser.day ~= last.day then
+				pinfo.sutraNum = pinfo.sutraNum + 1
+				pinfo.sutraLastTime = pinfo.ostime
 				
-		local ser = getDayByTime(pinfo.ostime)
-		local last = getDayByTime(pinfo.sutraLastTime)
-		if ser.year ~= last.year or ser.month ~= last.month or ser.day ~= last.day then
-			pinfo.sutraNum = pinfo.sutraNum + 1
-			pinfo.sutraLastTime = pinfo.ostime
-			
-			CMD.pushUserData("sutraNum", pinfo.sutraNum)
-			CMD.pushUserData("sutraLastTime", pinfo.sutraLastTime)
-			
-			skynet.call("db_service", "lua", "updateUserUpdate", pinfo.uuid, "sutraNum", pinfo.sutraNum)
-			skynet.call("db_service", "lua", "updateUserUpdate", pinfo.uuid, "sutraLastTime", pinfo.sutraLastTime)
-			updateSutraRank()
+				CMD.pushUserData("sutraNum", pinfo.sutraNum)
+				skynet.call("db_service", "lua", "updateUserUpdate", pinfo.uuid, "sutraNum", pinfo.sutraNum)
+				
+				CMD.pushUserData("sutraLastTime", pinfo.sutraLastTime)
+				skynet.call("db_service", "lua", "updateUserUpdate", pinfo.uuid, "sutraLastTime", pinfo.sutraLastTime)
+				
+				updateSutraRank()
+			end
 		end
 	
 		--保存佛句,增加得分
-		local addScore = math.max(0, tonumber(s[2]))
+		local addScore = score
 		local lastScore = pinfo.musicScore[s[1]]
 		pinfo.musicScore[s[1]] = pinfo.musicScore[s[1]] + addScore
 		pinfo.fohaoNum = pinfo.fohaoNum + addScore
