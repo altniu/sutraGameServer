@@ -270,7 +270,6 @@ function REQUEST:totalPush()
 	end
 	
 	r = skynet.call("db_service", "lua", "getUserMonthCollect", self.uuid)
-	
 	if r then
 		--signLine, mouth, fohaoGroup
 		pinfo.signLine = r.signLine
@@ -279,10 +278,9 @@ function REQUEST:totalPush()
 		local scores = split(r.fohaoGroup, ",")
 		for k,v in pairs(scores) do
 			local s = split(v, ":")
-			printTable(s)
-			printTable(r)
-			printTable(pinfo.musicScore)
-			pinfo.musicScore[s[1]] = tonumber(s[2])
+			if #s == 2 then
+				pinfo.musicScore[s[1]] = tonumber(s[2])
+			end
 		end
 	end
 	
