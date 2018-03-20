@@ -194,7 +194,6 @@ function CMD.register(uuid, phone, userData)
 	res = db:query(sql)
 	assert(res, serviceName .. ",register uuid = " .. uuid .. " error "  .. tbl_userBaseData)
 	
-	
 	sql = string.format([[insert into %s(uuid, incenseLastTime, sutraLastTime, signNum, censerNum, sutraNum, fohaoNum, signRank, censerRank, sutraRank, totalRank) 
 								values('%s', %d, %d, %d, %d, %d, %d, %d, %d, %d, %d);]], 
 				tbl_userUpdateData, uuid, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
@@ -203,9 +202,10 @@ function CMD.register(uuid, phone, userData)
 	assert(res, serviceName .. ",register uuid = " .. uuid .. " error "  .. tbl_userUpdateData)	
 	printTable(res)
 	
+	local dates = os.date("*t", t)
 	--uuid, signLine, mouth, fohaoGroup
 	sql = string.format("insert into %s(uuid, signLine, month, fohaoGroup) values('%s',%d, %d, '%s');", 
-				tbl_monthCollect, uuid, 0, 0, "")
+				tbl_monthCollect, uuid, 0, dates.month, "")
 	--print(sql)
 	res = db:query(sql)
 	assert(res, serviceName .. ",register uuid = " .. uuid .. " error "  .. tbl_monthCollect)

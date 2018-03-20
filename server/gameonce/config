@@ -1,6 +1,6 @@
 root = "./"
 thread = 8
-logger = nil
+logger = "./skynet.log"
 harbor = 0
 start = "main"	-- main script
 bootstrap = "snlua bootstrap"	-- The service for bootstrap
