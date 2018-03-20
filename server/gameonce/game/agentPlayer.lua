@@ -241,8 +241,6 @@ end
 
 function REQUEST:totalPush()
 	local r = skynet.call("db_service", "lua", "getUserBaseData", self.uuid)
-	print("REQUEST:totalPush.getUserBaseData")
-	printTable(r)
 	
 	if r then
 		pinfo.uuid = r.uuid
@@ -253,8 +251,7 @@ function REQUEST:totalPush()
 	end
 	
 	r = skynet.call("db_service", "lua", "getUserUpdateData", self.uuid)
-	print("REQUEST:totalPush.getUserUpdateData")
-	printTable(r)
+	
 	if r then
 		pinfo.signNum = r.signNum
 		pinfo.censerNum = r.censerNum
@@ -270,6 +267,8 @@ function REQUEST:totalPush()
 	end
 	
 	r = skynet.call("db_service", "lua", "getUserMonthCollect", self.uuid)
+	print("getUserMonthCollect data info")
+	printTable(r)
 	if r then
 		--signLine, mouth, fohaoGroup
 		pinfo.signLine = r.signLine

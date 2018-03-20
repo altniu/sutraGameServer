@@ -34,9 +34,9 @@ local function printTable(lua_table, indent)
         local szPrefix = string.rep("    ", indent)
         local formatting = szPrefix.."["..k.."]".." = "..szSuffix
         if type(v) == "table" then
-            print(formatting)
-            printTable(v, indent + 1)
-            print(szPrefix.."},")
+            --print(formatting)
+            --printTable(v, indent + 1)
+            --print(szPrefix.."},")
         else
             local szValue = ""
             if type(v) == "string" then
@@ -44,7 +44,7 @@ local function printTable(lua_table, indent)
             else
                 szValue = tostring(v)
             end
-            print(formatting..szValue..",")
+            --print(formatting..szValue..",")
         end
     end
 end
@@ -132,7 +132,7 @@ local function init()
 		printTable(m_totalMap)
 	end
 	
-	printRank()
+	--printRank()
 end
 
 local function updateRank(uuid, num, rankMap, rank)
@@ -219,8 +219,8 @@ end
 function CMD.updateSutra(uuid, num)
 	print("rankService.updateSutra:", uuid, num)
 	updateRank(uuid, num, m_sutraMap, m_sutraRank)
-	printTable(m_sutraMap)
-	printTable(m_sutraRank)
+	--printTable(m_sutraMap)
+	--printTable(m_sutraRank)
 	updateTotalRank(uuid, num, 2)
 end
 function CMD.getSutraRank(uuid)
@@ -252,8 +252,8 @@ function CMD.getCenserRank(uuid)
 end
 
 function CMD.getTotalRank(uuid)
-	print("getTotalRank", uuid)
-	printTable(m_totalMap)
+	--print("getTotalRank", uuid)
+	--printTable(m_totalMap)
 	return m_totalMap[uuid] or 0
 	--[[local sutraRank = m_sutraMap[uuid]
 	local sutraParal = {}
