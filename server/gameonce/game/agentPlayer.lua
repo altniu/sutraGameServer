@@ -179,6 +179,9 @@ function REQUEST:updateUserData()
 				pinfo.sutraNum = pinfo.sutraNum + 1
 				pinfo.sutraLastTime = pinfo.ostime
 				
+				print("pinfo.ostime")
+				printTable(os.date("*t", pinfo.ostime))
+		
 				CMD.pushUserData("sutraNum", pinfo.sutraNum)
 				skynet.call("db_service", "lua", "updateUserUpdate", pinfo.uuid, "sutraNum", pinfo.sutraNum)
 				
@@ -264,6 +267,9 @@ function REQUEST:totalPush()
 		pinfo.incenseLastTime = r.incenseLastTime
 		pinfo.sutraLastTime = r.sutraLastTime
 		pinfo.fohaoNum = r.fohaoNum
+		
+		print("os.date, r.sutraLastTime")
+		printTable(os.date("*t", r.sutraLastTime))
 	end
 	
 	r = skynet.call("db_service", "lua", "getUserMonthCollect", self.uuid)
@@ -284,6 +290,8 @@ function REQUEST:totalPush()
 	end
 	
 	pinfo.ostime = os.time()
+	print("totalpush pinfo.ostime")
+	printTable(os.date("*t", pinfo.ostime))
 	
 	local ret = {incenseLastTime=pinfo.incenseLastTime, sutraLastTime=pinfo.sutraLastTime, 
 			totalRank=skynet.call("rankService", "lua", "getTotalRank", self.uuid), 
