@@ -164,14 +164,18 @@ function REQUEST:updateUserData()
 	end
 	if "songScore" == self.type then
 		local s = split(self.data, ":")
-		local score = tonumber(s[2]) or 0
-		if not pinfo.musicScore[s[1]] then
-			--return {errCode=1, desc="cant find the song ", s[1]}
-			pinfo.musicScore[s[1]] = 0
+		local musicName = s[1]
+		local sc = split(s[2], ",")
+		local score = tonumber(sc[1]) or 0
+		local clickCount = tonumber(sc[2]) or 0
+		
+		if not pinfo.musicScore[musicName] then
+			--return {errCode=1, desc="cant find the song ", musicName}
+			pinfo.musicScore[musicName] = 0
 		end
 		
 		--大于100下佛句就算敲成功		
-		if score > 99 then
+		if clickCount > 99 then
 			local ser = getDayByTime(pinfo.ostime)
 			local last = getDayByTime(pinfo.sutraLastTime)
 		
@@ -179,8 +183,6 @@ function REQUEST:updateUserData()
 				pinfo.sutraNum = pinfo.sutraNum + 1
 				pinfo.sutraLastTime = pinfo.ostime
 				
-				print("pinfo.ostime")
-				printTable(os.date("*t", pinfo.ostime))
 		
 				CMD.pushUserData("sutraNum", pinfo.sutraNum)
 				skynet.call("db_service", "lua", "updateUserUpdate", pinfo.uuid, "sutraNum", pinfo.sutraNum)
@@ -194,8 +196,8 @@ function REQUEST:updateUserData()
 	
 		--保存佛句,增加得分
 		local addScore = score
-		local lastScore = pinfo.musicScore[s[1]]
-		pinfo.musicScore[s[1]] = pinfo.musicScore[s[1]] + addScore
+		local lastScore = pinfo.musicScore[musicName]
+		pinfo.musicScore[musicName] = pinfo.musicScore[musicName] + addScore
 		pinfo.fohaoNum = pinfo.fohaoNum + addScore
 		pinfo.fohaoMonthNum = pinfo.fohaoMonthNum + addScore
 		
@@ -214,7 +216,7 @@ function REQUEST:updateUserData()
 		updateFohaoRank()
 		
 		local totalScore = 0
-		local songList, jingtu = skynet.call(game_root, "lua", "getJingtuListIdWithSongId", s[1])
+		local songList, jingtu = skynet.call(game_root, "lua", "getJingtuListIdWithSongId", musicName)
 		print("songList, jingtu ", jingtu )
 		printTable(songList)
 		if songList then
