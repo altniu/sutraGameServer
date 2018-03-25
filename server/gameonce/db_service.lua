@@ -153,7 +153,11 @@ function CMD.getUserMonthCollect(uuid, month)
 	print(sql)
 	res = db:query(sql)
 	assert(res, serviceName .. ",getUserMonthCollect uuid = " .. uuid .. " error")
+	print(type(res))
 	printTable(res)
+	if #res == 0 then
+		print("res is empty")
+	end
 	
 	local data = {}
 	for k,v in pairs(res) do
