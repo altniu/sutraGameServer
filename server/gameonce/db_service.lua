@@ -144,16 +144,16 @@ function CMD.updateUserUpdate(uuid, key, value)
 	return res and true or false
 end
 
-function CMD.getUserMonthCollect(uuid)
+function CMD.getUserMonthCollect(uuid, month)
 	if not uuid or "string" ~= type(uuid) then 
 		return false
 	end
 	
-	local sql = "select * from " .. tbl_monthCollect .. " where uuid = \'" .. uuid .. "\'"
-	--print(sql)
+	local sql = "select * from " .. tbl_monthCollect .. " where uuid = \'" .. uuid .. "\' and month = " .. month
+	print(sql)
 	res = db:query(sql)
 	assert(res, serviceName .. ",getUserMonthCollect uuid = " .. uuid .. " error")
-	--printTable(res)
+	printTable(res)
 	
 	local data = {}
 	for k,v in pairs(res) do

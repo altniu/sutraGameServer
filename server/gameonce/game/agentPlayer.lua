@@ -245,8 +245,14 @@ function REQUEST:updateUserData()
 end
 
 function REQUEST:totalPush()
-	local r = skynet.call("db_service", "lua", "getUserBaseData", self.uuid)
+	pinfo.ostime = os.time()
+	print("totalpush pinfo.ostime")
+	printTable(os.date("*t", pinfo.ostime))
+	local date = getDayByTime(pinfo.ostime )
 	
+	local r 
+
+	r = skynet.call("db_service", "lua", "getUserBaseData", self.uuid)	
 	if r then
 		pinfo.uuid = r.uuid
 		pinfo.registerTime = r.registerTime
@@ -255,8 +261,26 @@ function REQUEST:totalPush()
 		pinfo.phoneType = r.phoneType
 	end
 	
-	r = skynet.call("db_service", "lua", "getUserUpdateData", self.uuid)
+	r = skynet.call("db_service", "lua", "getUserMonthCollect", self.uuid, date.month)
+	print("getUserMonthCollect data info")
+	printTable(r)
 	
+	
+	if r then
+		--signLine, mouth, fohaoGroup
+		pinfo.signLine = r.signLine
+		pinfo.mouth = r.month
+		pinfo.fohaoGroup = r.fohaoGroup
+		local scores = split(r.fohaoGroup, ",")
+		for k,v in pairs(scores) do
+			local s = split(v, ":")
+			if #s == 2 then
+				pinfo.musicScore[s[1]] = tonumber(s[2])
+			end
+		end
+	end
+	
+	r = skynet.call("db_service", "lua", "getUserUpdateData", self.uuid)
 	if r then
 		pinfo.signNum = r.signNum
 		pinfo.censerNum = r.censerNum
@@ -274,26 +298,9 @@ function REQUEST:totalPush()
 		printTable(os.date("*t", r.sutraLastTime))
 	end
 	
-	r = skynet.call("db_service", "lua", "getUserMonthCollect", self.uuid)
-	print("getUserMonthCollect data info")
-	printTable(r)
-	if r then
-		--signLine, mouth, fohaoGroup
-		pinfo.signLine = r.signLine
-		pinfo.mouth = r.mouth
-		pinfo.fohaoGroup = r.fohaoGroup
-		local scores = split(r.fohaoGroup, ",")
-		for k,v in pairs(scores) do
-			local s = split(v, ":")
-			if #s == 2 then
-				pinfo.musicScore[s[1]] = tonumber(s[2])
-			end
-		end
-	end
 	
-	pinfo.ostime = os.time()
-	print("totalpush pinfo.ostime")
-	printTable(os.date("*t", pinfo.ostime))
+	
+	
 	
 	local ret = {incenseLastTime=pinfo.incenseLastTime, sutraLastTime=pinfo.sutraLastTime, 
 			totalRank=skynet.call("rankService", "lua", "getTotalRank", self.uuid), 
