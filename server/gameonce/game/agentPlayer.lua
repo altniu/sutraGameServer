@@ -130,7 +130,7 @@ end
 
 function REQUEST:updateUserData()
 	print("REQUEST:updateUserData", pinfo.uuid, self.type, self.data)
-	
+	print("==========test-updateUserData", self.ostime, pinfo.ostime)
 	if self.ostime ~= pinfo.ostime then
 		return {errCode=1, desc="err ostime"}
 	end
@@ -162,14 +162,14 @@ function REQUEST:updateUserData()
 			return {errCode=1, desc="today already senserd"}
 		end
 	end
-	log("==========test-self.type", self.type)
+	print("==========test-self.type", self.type)
 	if "songScore" == self.type then
 		local s = split(self.data, ":")
 		local musicName = s[1]
 		local sc = split(s[2], ",")
 		local score = tonumber(sc[1]) or 0
 		local clickCount = tonumber(sc[2]) or 0
-		log("==========test-musicName, sc, score, clickCount", musicName, sc, score, clickCount)
+		print("==========test-musicName, sc, score, clickCount", musicName, sc, score, clickCount)
 		if not pinfo.musicScore[musicName] then
 			--return {errCode=1, desc="cant find the song ", musicName}
 			pinfo.musicScore[musicName] = 0
@@ -201,7 +201,7 @@ function REQUEST:updateUserData()
 		pinfo.musicScore[musicName] = pinfo.musicScore[musicName] + addScore
 		pinfo.fohaoNum = pinfo.fohaoNum + addScore
 		pinfo.fohaoMonthNum = pinfo.fohaoMonthNum + addScore
-		log("==========test-pinfo.pinfo.fohaoMonthNum", pinfo.fohaoMonthNum)
+		print("==========test-pinfo.pinfo.fohaoMonthNum", pinfo.fohaoMonthNum)
 		local fh = ""
 		for k,v in pairs(pinfo.musicScore) do
 			fh = fh .. k .. ":" .. v .. ","
@@ -211,10 +211,10 @@ function REQUEST:updateUserData()
 		end
 		CMD.pushUserData("fohaoGroup", pinfo.fohaoGroup)
 		skynet.call("db_service", "lua", "updateMonthCollect", pinfo.uuid, "fohaoGroup", pinfo.fohaoGroup)
-		log("==========test-pinfo.pinfo.fohaoGroup", pinfo.fohaoGroup)
+		print("==========test-pinfo.pinfo.fohaoGroup", pinfo.fohaoGroup)
 		skynet.call("db_service", "lua", "updateUserUpdate", pinfo.uuid, "fohaoNum", pinfo.fohaoNum)
 		skynet.call("db_service", "lua", "updateUserUpdate", pinfo.uuid, "fohaoMonthNum", pinfo.fohaoMonthNum)
-		log("==========test-pinfo.fohaoMonthNum", pinfo.fohaoMonthNum)
+		print("==========test-pinfo.fohaoMonthNum", pinfo.fohaoMonthNum)
 		CMD.pushUserData("fohaoMonthNum", pinfo.fohaoMonthNum)
 		updateFohaoRank()
 		
