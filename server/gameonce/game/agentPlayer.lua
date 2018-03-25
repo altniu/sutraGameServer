@@ -162,13 +162,14 @@ function REQUEST:updateUserData()
 			return {errCode=1, desc="today already senserd"}
 		end
 	end
+	log("==========test-self.type", self.type)
 	if "songScore" == self.type then
 		local s = split(self.data, ":")
 		local musicName = s[1]
 		local sc = split(s[2], ",")
 		local score = tonumber(sc[1]) or 0
 		local clickCount = tonumber(sc[2]) or 0
-		
+		log("==========test-musicName, sc, score, clickCount", musicName, sc, score, clickCount)
 		if not pinfo.musicScore[musicName] then
 			--return {errCode=1, desc="cant find the song ", musicName}
 			pinfo.musicScore[musicName] = 0
