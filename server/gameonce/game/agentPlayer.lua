@@ -200,7 +200,7 @@ function REQUEST:updateUserData()
 		pinfo.musicScore[musicName] = pinfo.musicScore[musicName] + addScore
 		pinfo.fohaoNum = pinfo.fohaoNum + addScore
 		pinfo.fohaoMonthNum = pinfo.fohaoMonthNum + addScore
-		
+		log("==========test-pinfo.pinfo.fohaoMonthNum", pinfo.fohaoMonthNum)
 		local fh = ""
 		for k,v in pairs(pinfo.musicScore) do
 			fh = fh .. k .. ":" .. v .. ","
