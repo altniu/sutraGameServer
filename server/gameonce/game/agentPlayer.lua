@@ -35,7 +35,7 @@ local pinfo = {
 	fohaoMonthNum = 0,--每月佛号总计
 	phoneType = "",
 	signLine = 0,
-	mouth = 0,
+	month = 0,
 	musicScore = {},
 	fohaoGroup = "",
 	first = false,
@@ -130,7 +130,6 @@ end
 
 function REQUEST:updateUserData()
 	print("REQUEST:updateUserData", pinfo.uuid, self.type, self.data)
-	print("==========test-updateUserData", self.ostime, pinfo.ostime)
 	if self.ostime ~= pinfo.ostime then
 		return {errCode=1, desc="err ostime"}
 	end
@@ -141,7 +140,7 @@ function REQUEST:updateUserData()
 		
 		CMD.pushUserData("signNum", pinfo.signNum)
 		
-		skynet.call("db_service", "lua", "updateMonthCollect", pinfo.uuid, "signLine", pinfo.signLine)
+		skynet.call("db_service", "lua", "updateMonthCollect", pinfo.uuid, pinfo.month ,"signLine", pinfo.signLine)
 		skynet.call("db_service", "lua", "updateUserUpdate", pinfo.uuid, "signNum", pinfo.signNum)
 		updateSignRank()
 		
@@ -162,14 +161,12 @@ function REQUEST:updateUserData()
 			return {errCode=1, desc="today already senserd"}
 		end
 	end
-	print("==========test-self.type", self.type)
 	if "songScore" == self.type then
 		local s = split(self.data, ":")
 		local musicName = s[1]
 		local sc = split(s[2], ",")
 		local score = tonumber(sc[1]) or 0
 		local clickCount = tonumber(sc[2]) or 0
-		print("==========test-musicName, sc, score, clickCount", musicName, sc, score, clickCount)
 		if not pinfo.musicScore[musicName] then
 			--return {errCode=1, desc="cant find the song ", musicName}
 			pinfo.musicScore[musicName] = 0
@@ -201,7 +198,6 @@ function REQUEST:updateUserData()
 		pinfo.musicScore[musicName] = pinfo.musicScore[musicName] + addScore
 		pinfo.fohaoNum = pinfo.fohaoNum + addScore
 		pinfo.fohaoMonthNum = pinfo.fohaoMonthNum + addScore
-		print("==========test-pinfo.pinfo.fohaoMonthNum", pinfo.fohaoMonthNum)
 		local fh = ""
 		for k,v in pairs(pinfo.musicScore) do
 			fh = fh .. k .. ":" .. v .. ","
@@ -210,18 +206,14 @@ function REQUEST:updateUserData()
 			pinfo.fohaoGroup = string.sub(fh, 1, -2)
 		end
 		CMD.pushUserData("fohaoGroup", pinfo.fohaoGroup)
-		skynet.call("db_service", "lua", "updateMonthCollect", pinfo.uuid, "fohaoGroup", pinfo.fohaoGroup)
-		print("==========test-pinfo.pinfo.fohaoGroup", pinfo.fohaoGroup)
+		skynet.call("db_service", "lua", "updateMonthCollect", pinfo.uuid, pinfo.month, "fohaoGroup", pinfo.fohaoGroup)
 		skynet.call("db_service", "lua", "updateUserUpdate", pinfo.uuid, "fohaoNum", pinfo.fohaoNum)
 		skynet.call("db_service", "lua", "updateUserUpdate", pinfo.uuid, "fohaoMonthNum", pinfo.fohaoMonthNum)
-		print("==========test-pinfo.fohaoMonthNum", pinfo.fohaoMonthNum)
 		CMD.pushUserData("fohaoMonthNum", pinfo.fohaoMonthNum)
 		updateFohaoRank()
 		
 		local totalScore = 0
 		local songList, jingtu = skynet.call(game_root, "lua", "getJingtuListIdWithSongId", musicName)
-		print("songList, jingtu ", jingtu )
-		printTable(songList)
 		if songList then
 			for k,v in pairs(songList) do
 				if pinfo.musicScore[v] then
@@ -270,7 +262,7 @@ function REQUEST:totalPush()
 	if r then
 		--signLine, mouth, fohaoGroup
 		pinfo.signLine = r.signLine
-		pinfo.mouth = r.month
+		pinfo.month = r.month
 		pinfo.fohaoGroup = r.fohaoGroup
 		local scores = split(r.fohaoGroup, ",")
 		for k,v in pairs(scores) do
