@@ -261,7 +261,7 @@ function REQUEST:totalPush()
 		pinfo.phoneType = r.phoneType
 	end
 	
-	r = skynet.call("db_service", "lua", "getUserMonthCollect", self.uuid, date.month)
+	r = skynet.call("db_service", "lua", "getUserMonthCollect", self.uuid, date.month+1)
 	print("getUserMonthCollect data info")
 	printTable(r)
 	
