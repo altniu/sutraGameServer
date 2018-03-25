@@ -150,13 +150,15 @@ function CMD.getUserMonthCollect(uuid, month)
 	end
 	
 	local sql = "select * from " .. tbl_monthCollect .. " where uuid = \'" .. uuid .. "\' and month = " .. month
-	print(sql)
 	res = db:query(sql)
 	assert(res, serviceName .. ",getUserMonthCollect uuid = " .. uuid .. " error")
-	print(type(res))
-	printTable(res)
+
+	--月份不存在，新增一条数据
 	if #res == 0 then
-		print("res is empty")
+		sql = string.format("insert into %s(uuid, signLine, month, fohaoGroup) values('%s',%d, %d, '%s');", 
+				tbl_monthCollect, uuid, 0, month, "")
+		res = {uuid=uuid, signLine=0, month=month, fohaoGroup=""}
+		return res
 	end
 	
 	local data = {}
@@ -169,11 +171,11 @@ function CMD.getUserMonthCollect(uuid, month)
 	return data
 end
 
-function CMD.updateMonthCollect(uuid, key, value)
-	local sql = "update " .. tbl_monthCollect .. " set " .. key .. " = \'" .. value .. "\'" .. " where uuid = \'" .. uuid .. "\'"
+function CMD.updateMonthCollect(uuid, month, key, value)
+	local sql = "update " .. tbl_monthCollect .. " set " .. key .. " = \'" .. value .. "\'" .. " where uuid = \'" .. uuid .. "\' and month = " .. month
 	res = db:query(sql)
 	if not res then
-		print(serviceName .. ",updateMonthCollect uuid = " .. uuid .. " error")
+		print(serviceName .. ",updateMonthCollect uuid = " .. uuid .. " error, month = " .. month)
 		return false
 	end
 	
@@ -198,9 +200,9 @@ function CMD.register(uuid, phone, userData)
 	res = db:query(sql)
 	assert(res, serviceName .. ",register uuid = " .. uuid .. " error "  .. tbl_userBaseData)
 	
-	sql = string.format([[insert into %s(uuid, incenseLastTime, sutraLastTime, signNum, censerNum, sutraNum, fohaoNum, signRank, censerRank, sutraRank, totalRank) 
-								values('%s', %d, %d, %d, %d, %d, %d, %d, %d, %d, %d);]], 
-				tbl_userUpdateData, uuid, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+	sql = string.format([[insert into %s(uuid, incenseLastTime, sutraLastTime, signNum, censerNum, sutraNum, fohaoNum, fohaoMonthNum, signRank, censerRank, sutraRank, totalRank) 
+								values('%s', %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d);]], 
+				tbl_userUpdateData, uuid, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 	print(sql)	
 	res = db:query(sql)
 	assert(res, serviceName .. ",register uuid = " .. uuid .. " error "  .. tbl_userUpdateData)	

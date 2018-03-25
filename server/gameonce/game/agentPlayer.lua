@@ -261,11 +261,9 @@ function REQUEST:totalPush()
 		pinfo.phoneType = r.phoneType
 	end
 	
-	r = skynet.call("db_service", "lua", "getUserMonthCollect", self.uuid, date.month+1)
+	r = skynet.call("db_service", "lua", "getUserMonthCollect", self.uuid, date.month)
 	print("getUserMonthCollect data info")
 	printTable(r)
-	
-	
 	if r then
 		--signLine, mouth, fohaoGroup
 		pinfo.signLine = r.signLine
@@ -293,9 +291,6 @@ function REQUEST:totalPush()
 		pinfo.incenseLastTime = r.incenseLastTime
 		pinfo.sutraLastTime = r.sutraLastTime
 		pinfo.fohaoNum = r.fohaoNum
-		
-		print("os.date, r.sutraLastTime")
-		printTable(os.date("*t", r.sutraLastTime))
 	end
 	
 	
