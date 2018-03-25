@@ -208,7 +208,7 @@ function REQUEST:updateUserData()
 		CMD.pushUserData("fohaoGroup", pinfo.fohaoGroup)
 		skynet.call("db_service", "lua", "updateMonthCollect", pinfo.uuid, pinfo.month, "fohaoGroup", pinfo.fohaoGroup)
 		skynet.call("db_service", "lua", "updateUserUpdate", pinfo.uuid, "fohaoNum", pinfo.fohaoNum)
-		skynet.call("db_service", "lua", "updateUserUpdate", pinfo.uuid, "fohaoMonthNum", pinfo.fohaoMonthNum)
+		skynet.call("db_service", "lua", "updateMonthCollect", pinfo.uuid, pinfo.month, "fohaoMonthNum", pinfo.fohaoMonthNum)
 		CMD.pushUserData("fohaoMonthNum", pinfo.fohaoMonthNum)
 		updateFohaoRank()
 		
@@ -264,6 +264,7 @@ function REQUEST:totalPush()
 		pinfo.signLine = r.signLine
 		pinfo.month = r.month
 		pinfo.fohaoGroup = r.fohaoGroup
+		pinfo.fohaoMonthNum = r.fohaoMonthNum
 		local scores = split(r.fohaoGroup, ",")
 		for k,v in pairs(scores) do
 			local s = split(v, ":")
@@ -278,7 +279,6 @@ function REQUEST:totalPush()
 		pinfo.signNum = r.signNum
 		pinfo.censerNum = r.censerNum
 		pinfo.sutraNum = r.sutraNum
-		pinfo.fohaoMonthNum = r.fohaoMonthNum
 		pinfo.signRank = r.signRank
 		pinfo.censerRank = r.censerRank
 		pinfo.sutraRank = r.sutraRank
