@@ -1,0 +1,5 @@
+删除主键
+alter table monthCollect drop primary key;
+
+增加符合主键
+alter table monthCollect add primary key(uuid, month);

@@ -210,7 +210,7 @@ function REQUEST:updateUserData()
 		CMD.pushUserData("fohaoGroup", pinfo.scoreGroup)
 		skynet.call("db_service", "lua", "updateMonthCollect", pinfo.uuid, pinfo.month, "fohaoGroup", pinfo.scoreGroup)
 		skynet.call("db_service", "lua", "updateUserUpdate", pinfo.uuid, "fohaoNum", pinfo.fohaoNum)
-		--skynet.call("db_service", "lua", "updateMonthCollect", pinfo.uuid, pinfo.month, "fohaoMonthNum", pinfo.fohaoMonthNum)
+		skynet.call("db_service", "lua", "updateMonthCollect", pinfo.uuid, pinfo.month, "fohaoMonthNum", pinfo.fohaoMonthNum)
 		CMD.pushUserData("fohaoMonthNum", pinfo.fohaoMonthNum)
 		updateFohaoRank()
 		
@@ -270,7 +270,7 @@ function REQUEST:totalPush()
 	print("getUserMonthCollect data info")
 	printTable(r)
 	if r then
-		--signLine, mouth, fohaoGroup
+		--signLine, mouth, fohaoGroup, fohaoMonthNum
 		pinfo.signLine = r.signLine
 		pinfo.month = r.month
 		pinfo.scoreGroup = r.fohaoGroup
