@@ -210,7 +210,7 @@ function REQUEST:updateUserData()
 		CMD.pushUserData("fohaoGroup", pinfo.scoreGroup)
 		skynet.call("db_service", "lua", "updateMonthCollect", pinfo.uuid, pinfo.month, "fohaoGroup", pinfo.scoreGroup)
 		skynet.call("db_service", "lua", "updateUserUpdate", pinfo.uuid, "fohaoNum", pinfo.fohaoNum)
-		skynet.call("db_service", "lua", "updateMonthCollect", pinfo.uuid, pinfo.month, "fohaoMonthNum", pinfo.fohaoMonthNum)
+		--skynet.call("db_service", "lua", "updateMonthCollect", pinfo.uuid, pinfo.month, "fohaoMonthNum", pinfo.fohaoMonthNum)
 		CMD.pushUserData("fohaoMonthNum", pinfo.fohaoMonthNum)
 		updateFohaoRank()
 		
