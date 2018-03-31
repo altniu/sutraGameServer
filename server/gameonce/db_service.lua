@@ -155,9 +155,9 @@ function CMD.getUserMonthCollect(uuid, month)
 
 	--月份不存在，新增一条数据
 	if #res == 0 then
-		sql = string.format("insert into %s(uuid, signLine, month, fohaoGroup) values('%s',%d, %d, '%s');", 
-				tbl_monthCollect, uuid, 0, month, "")
-		res = {uuid=uuid, signLine=0, month=month, fohaoGroup=""}
+		sql = string.format("insert into %s(uuid, signLine, month, fohaoGroup, fohaoMonthNum) values('%s',%d, %d, '%s', %d);", 
+				tbl_monthCollect, uuid, 0, month, "", 0)
+		res = {uuid=uuid, signLine=0, month=month, fohaoGroup="", fohaoMonthNum=0}
 		return res
 	end
 	
