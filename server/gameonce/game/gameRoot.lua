@@ -38,7 +38,9 @@ function CMD.getJingtuListIdWithSongId(findId)
 	return ret, jingtu
 end
 
-
+function CMD.getSongList()
+	return songCsv
+end
 
 function init()
 	songCsv = csvParse.LoadMusicRhythm("server/gameonce/game/songData.csv")

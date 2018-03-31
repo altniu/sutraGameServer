@@ -31,19 +31,21 @@ local pinfo = {
 	sutraRank = 0,
 	jingtuGroup = "",
 	lotusNum = 0,
-	fohaoNum = 0,--佛号总数
-	fohaoMonthNum = 0,--每月佛号总计
+	fohaoNum = 0,			--佛号总数
+	fohaoMonthNum = 0,		--每月佛号总计
 	phoneType = "",
 	signLine = 0,
 	month = 0,
 	musicScore = {},
-	fohaoGroup = "",
+	scoreGroup = "",
 	first = false,
 	ostime = 0,
 	incenseLastTime = 0,
 	sutraLastTime = 0,
+	loginLastTime = 0,
 }
 
+local passedFohaoMathCount = 30000
 
 local function printTable(lua_table, indent)
     if not lua_table then
@@ -203,33 +205,41 @@ function REQUEST:updateUserData()
 			fh = fh .. k .. ":" .. v .. ","
 		end
 		if string.len(fh) > 0 then
-			pinfo.fohaoGroup = string.sub(fh, 1, -2)
+			pinfo.scoreGroup = string.sub(fh, 1, -2)
 		end
-		CMD.pushUserData("fohaoGroup", pinfo.fohaoGroup)
-		skynet.call("db_service", "lua", "updateMonthCollect", pinfo.uuid, pinfo.month, "fohaoGroup", pinfo.fohaoGroup)
+		CMD.pushUserData("fohaoGroup", pinfo.scoreGroup)
+		skynet.call("db_service", "lua", "updateMonthCollect", pinfo.uuid, pinfo.month, "fohaoGroup", pinfo.scoreGroup)
 		skynet.call("db_service", "lua", "updateUserUpdate", pinfo.uuid, "fohaoNum", pinfo.fohaoNum)
 		skynet.call("db_service", "lua", "updateMonthCollect", pinfo.uuid, pinfo.month, "fohaoMonthNum", pinfo.fohaoMonthNum)
 		CMD.pushUserData("fohaoMonthNum", pinfo.fohaoMonthNum)
 		updateFohaoRank()
 		
-		local totalScore = 0
+		local totalMonthScore = 0
 		local songList, jingtu = skynet.call(game_root, "lua", "getJingtuListIdWithSongId", musicName)
 		if songList then
 			for k,v in pairs(songList) do
 				if pinfo.musicScore[v] then
-					totalScore = totalScore + pinfo.musicScore[v]
+					totalMonthScore = totalMonthScore + pinfo.musicScore[v]
 				end
 			end
 		end
 		
 		--一个月内累计敲3万下佛号
-		print("totalScore, fohaoMonthNum, addScore", totalScore, pinfo.fohaoMonthNum, addScore)
-		if pinfo.fohaoMonthNum > 30000 and pinfo.fohaoMonthNum - addScore < 30000 then
+		print("totalMonthScore, fohaoMonthNum, addScore", totalMonthScore, pinfo.fohaoMonthNum, addScore)
+		if totalMonthScore > passedFohaoMathCount and totalMonthScore - addScore < passedFohaoMathCount then
 			local s1, s2 = string.find(pinfo.jingtuGroup, jingtu, 1, true)
-			s1, s2 = string.find(pinfo.jingtuGroup, ":", s2+1, true)
-			local s3 = string.find(pinfo.jingtuGroup, ",", s2+1, true)
-			local jtNum = tonumber(string.find(s2+1, s3-1)) + 1
-			pinfo.jingtuGroup = string.sub(pinfo.jingtuGroup, 1, s2) .. jtNum .. string.sub(pinfo.jingtuGroup, s2+1, -1)
+			if not s1 then
+				if pinfo.jingtuGroup == "" then
+					pinfo.jingtuGroup = jingtu .. ":1"
+				else
+					pinfo.jingtuGroup = pinfo.jingtuGroup .. "," .. jingtu .. ":1"
+				end
+			else
+				s1, s2 = string.find(pinfo.jingtuGroup, ":", s2+1, true)
+				local s3 = string.find(pinfo.jingtuGroup, ",", s2+1, true)
+				local jtNum = tonumber(string.find(s2+1, s3-1)) + 1
+				pinfo.jingtuGroup = string.sub(pinfo.jingtuGroup, 1, s2) .. jtNum .. string.sub(pinfo.jingtuGroup, s2+1, -1)
+			end			
 			CMD.pushUserData("jingtuGroup", pinfo.jingtuGroup)
 			
 			skynet.call("db_service", "lua", "updateUserBaseData", pinfo.uuid, "jingtuGroup", pinfo.jingtuGroup)
@@ -242,9 +252,9 @@ end
 function REQUEST:totalPush()
 	pinfo.ostime = os.time()
 	print("totalpush pinfo.ostime")
-	printTable(os.date("*t", pinfo.ostime))
 	local date = getDayByTime(pinfo.ostime )
-	
+	printTable(date)
+
 	local r 
 
 	r = skynet.call("db_service", "lua", "getUserBaseData", self.uuid)	
@@ -263,7 +273,7 @@ function REQUEST:totalPush()
 		--signLine, mouth, fohaoGroup
 		pinfo.signLine = r.signLine
 		pinfo.month = r.month
-		pinfo.fohaoGroup = r.fohaoGroup
+		pinfo.scoreGroup = r.fohaoGroup
 		pinfo.fohaoMonthNum = r.fohaoMonthNum
 		local scores = split(r.fohaoGroup, ",")
 		for k,v in pairs(scores) do
@@ -286,10 +296,52 @@ function REQUEST:totalPush()
 		pinfo.incenseLastTime = r.incenseLastTime
 		pinfo.sutraLastTime = r.sutraLastTime
 		pinfo.fohaoNum = r.fohaoNum
+		pinfo.loginLastTime = r.loginLastTime
 	end
 	
-	
-	
+	--最后，校验是否跨月，做相关逻辑
+	local lastLoginDate = getDayByTime(pinfo.loginLastTime)
+	if date.day == 1 and lastLoginDate.day ~= date.day then
+		pinfo.loginLastTime = pinfo.ostime
+		skynet.call("db_service", "lua", "updateUserUpdate", pinfo.uuid, "loginLastTime", pinfo.loginLastTime)
+		
+		r = skynet.call("db_service", "lua", "getUserMonthCollect", self.uuid, lastLoginDate.month)
+		if r then
+			local songlist = skynet.call(game_root, "lua", "getSongList")
+			
+			local scores = split(r.fohaoGroup, ",")
+			local jingtuList = {}
+			for k,v in pairs(scores) do
+				local s = split(v, ":")
+				if #s == 2 then
+					local jt = songlist[s[1]].jingtuId
+					if not jingtuList[jt] then jingtuList[jt] = 0 end
+					jingtuList[jt] = jingtuList[jt] + tonumber(s[2])
+				end
+			end
+			
+			local jingtuInvalid = {}
+			for jt, score in pairs(jingtuList) do
+				if score < passedFohaoMathCount then
+					jingtuInvalid[jt] = true
+				end
+			end
+			
+			local jtGroup = split(pinfo.jingtuGroup, ",")
+			local newJtGroup = {}
+			for i=1, #jtGroup do
+				local jt2num = split(jtGroup[i], ":")
+				if not jingtuInvalid[jt2num[1]] then
+					newJtGroup[#newJtGroup+1] = jt2num
+				end
+			end
+			local oldJingtuGroup = pinfo.jingtuGroup
+			pinfo.jingtuGroup = table.concat(newJtGroup)
+			skynet.call("db_service", "lua", "updateUserBaseData", pinfo.uuid, "jingtuGroup", pinfo.jingtuGroup)
+			
+			print("NEW MONTH: clear jingtuGroup from " .. oldJingtuGroup .. " to " .. pinfo.jingtuGroup)
+		end
+	end
 	
 	
 	local ret = {incenseLastTime=pinfo.incenseLastTime, sutraLastTime=pinfo.sutraLastTime, 
@@ -392,7 +444,9 @@ function CMD.disconnect()
 	if pinfo.uuid ~= "" then
 		local r = skynet.call("loginserver", "lua", "logOut", pinfo.uuid)
 	end
-	skynet.exit()
+	
+	--检查是否跨月
+	--skynet.exit()
 end
 
 skynet.start(function()

@@ -23,12 +23,12 @@ create table userUpdateData
     (
     uuid char(64) not null primary key,
 	incenseLastTime int not null,
+	loginLastTime int not null,
 	sutraLastTime int not null,
 	signNum int not null,
 	censerNum int not null,
 	sutraNum int not null,
 	fohaoNum int not null,
-	fohaoMonthNum int not null,
 	signRank int not null,
 	censerRank int not null,
 	sutraRank int not null,
@@ -47,5 +47,6 @@ create table monthCollect
 	signLine int not null,
 	month int not null,
 	fohaoGroup varchar(64),
+	fohaoMonthNum int not null,
 	unique(uuid)
 	);
