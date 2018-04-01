@@ -301,7 +301,7 @@ function REQUEST:totalPush()
 	
 	--最后，校验是否跨月，做相关逻辑
 	local lastLoginDate = getDayByTime(pinfo.loginLastTime)
-	if date.day == 1 and (lastLoginDate.day ~= date.day or pinfo.loginLastTime == 0) then
+	if lastLoginDate.month ~= date.month then
 		pinfo.loginLastTime = pinfo.ostime
 		skynet.call("db_service", "lua", "updateUserUpdate", pinfo.uuid, "loginLastTime", pinfo.loginLastTime)
 		
