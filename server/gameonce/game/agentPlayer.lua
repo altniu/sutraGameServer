@@ -332,7 +332,7 @@ function REQUEST:totalPush()
 			for i=1, #jtGroup do
 				local jt2num = split(jtGroup[i], ":")
 				if not jingtuInvalid[jt2num[1]] then
-					newJtGroup[#newJtGroup+1] = jt2num
+					newJtGroup[#newJtGroup+1] = jtGroup[i]
 				end
 			end
 			local oldJingtuGroup = pinfo.jingtuGroup

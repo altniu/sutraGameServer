@@ -15,3 +15,4 @@ DELETE FROM table_name WHERE condition;
 
 更新一行数据
 update userUpdateData set loginLastTime=0 where uuid = 'ABCDEFG12345678913';
+update userUpdateData set loginLastTime=1522339200;--更新所有行
