@@ -1,8 +1,5 @@
-删除主键
-alter table monthCollect drop primary key;
 
-增加符合主键
-alter table monthCollect add primary key(uuid, month);
+
 
 显示创建table sql
 show create table monthCollect;
@@ -13,3 +10,5 @@ ALTER TABLE monthCollect DROP PRIMARY KEY ,ADD PRIMARY KEY ( math );
 删除unique唯一键属性
 alter table monthCollect drop index uuid;
 
+删除一行数据
+DELETE FROM table_name WHERE condition;
