@@ -336,8 +336,6 @@ function REQUEST:totalPush()
 				end
 			end
 			local oldJingtuGroup = pinfo.jingtuGroup
-			print("newJtGroup")
-			printTable(newJtGroup)
 			pinfo.jingtuGroup = table.concat(newJtGroup, ",")
 			skynet.call("db_service", "lua", "updateUserBaseData", pinfo.uuid, "jingtuGroup", pinfo.jingtuGroup)
 			

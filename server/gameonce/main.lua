@@ -18,6 +18,9 @@ skynet.start(function()
 	--rank service
 	local rankService = skynet.newservice("rankService")
 	
+	--console
+	skynet.newservice("debug_console",8000)
+	
 	local watchdog = skynet.newservice("watchdog")
 	skynet.call(watchdog, "lua", "start", {
 		address="47.91.176.170",
