@@ -1,0 +1,9 @@
+yum install telnet-server
+yum install telnet
+
+重新启动xinetd守护进程 
+由于telnet服务也是由xinetd守护的，所以安装完telnet-server，要启动telnet服务就必须重新启动xinetd 
+[root@locahost ~]#service xinetd restart 
+
+进入skynet console
+telnet 127.0.0.1 8000
