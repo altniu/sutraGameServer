@@ -157,10 +157,7 @@ function CMD.getUserMonthCollect(uuid, month)
 	if #res == 0 then
 		sql = string.format("insert into %s(uuid, signLine, month, fohaoGroup, fohaoMonthNum) values('%s',%d, %d, '%s', %d);", 
 				tbl_monthCollect, uuid, 0, month, "", 0)
-				
-		print(sql)
 		res = db:query(sql)
-		printTable(res)
 		res = {uuid=uuid, signLine=0, month=month, fohaoGroup="", fohaoMonthNum=0}
 		return res
 	end
