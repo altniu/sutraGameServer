@@ -41,6 +41,8 @@ function server.auth_handler(token)
 	end
 	user_cacheTable[uuid] = true
 	
+	server.login_handler(uuid)
+	
 	return true
 end
 
@@ -99,6 +101,10 @@ function CMD.logOut(uuid)
 		user_online[uuid] = nil
 		--datacenter.set("user_online", uuid, nil)
 	end
+end
+
+function CMD.checkLogin(uuid)
+	return user_online[uuid] or user_cacheTable[uuid]
 end
 
 function server.command_handler(command, ...)

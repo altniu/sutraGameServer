@@ -272,6 +272,18 @@ function REQUEST:updateUserData()
 end
 
 
+function REQUEST:checkLogin()
+	local r = skynet.call("loginserver", "lua", "checkLogin", self.uuid)
+	pinfo.uuid = self.uuid
+	
+	if not r then
+		
+		
+		
+	end
+	skynet.call("watchdog", "lua", "close")
+	return r
+end
 
 function REQUEST:totalPush()
 	local ret = {incenseLastTime=pinfo.incenseLastTime, sutraLastTime=pinfo.sutraLastTime, 
@@ -462,7 +474,7 @@ function CMD.start(conf)
 	skynet.call(gate, "lua", "forward", fd)
 	
 	CMD.sendNoteInfo("欢迎进入彩绘净土世界，请签到后上香，选取经文后开始，敲击木鱼完成功课。")
-	init()
+	
 end
 
 function CMD.disconnect()

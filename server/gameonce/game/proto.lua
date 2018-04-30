@@ -50,6 +50,16 @@ updateUserData 2 {
 		desc 1 : string
 	}
 }
+
+checkLogin 3 {
+	request {
+		uuid 0 : string
+	}
+	response {
+		ret 0 : boolean
+	}
+}
+
 ]]
 
 proto.s2c = sprotoparser.parse [[

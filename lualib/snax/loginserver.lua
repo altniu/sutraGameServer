@@ -47,7 +47,7 @@ local function write(service, fd, text)
 	assert_socket(service, socket.write(fd, text), fd)
 end
 
-local function launch_slave(auth_handler, register_handler, login_handler)
+local function launch_slave(auth_handler, register_handler)
 	local function auth(fd, addr)
 		-- set socket buffer limit (8K)
 		-- If the attacker send large package, close the socket
@@ -55,13 +55,12 @@ local function launch_slave(auth_handler, register_handler, login_handler)
 
 		local opcode = assert_socket("auth", socket.readline(fd), fd)
 		opcode = crypt.base64decode(opcode)
-		print("auth.recv.opcode:" .. opcode)
 		if opcode == "r" then
 			local regmsg = assert_socket("auth", socket.readline(fd), fd)
 			local _, ok, code =  pcall(register_handler,crypt.base64decode(regmsg))
 			return _ and ok, code
 			
-		elseif opcode == "a" then
+		elseif opcode == "l" then
 			local challenge = crypt.randomkey()
 			--print("challenge", crypt.base64encode(challenge))
 			write("auth", fd, crypt.base64encode(challenge).."\n")
@@ -85,7 +84,7 @@ local function launch_slave(auth_handler, register_handler, login_handler)
 			--print("client response", response)
 			response = crypt.base64decode(response)			
 			local hmac = crypt.hmac64(challenge, secret)
-			print("hmac", crypt.base64encode(hmac))
+			--print("hmac", crypt.base64encode(hmac))
 			if hmac ~= response then
 				print "200 challenge failed"
 				return false, 200
@@ -94,21 +93,12 @@ local function launch_slave(auth_handler, register_handler, login_handler)
 			end
 			
 			local etoken = assert_socket("auth", socket.readline(fd),fd)
-			print("etoken", etoken)
+			--print("etoken", etoken)
 			local token = crypt.desdecode(secret, crypt.base64decode(etoken))
-			print("token", token)
+			--print("token", token)
 			local _, ok, uid =  pcall(auth_handler,token)
 			ok = _ and ok
 			local resc = ok and 0 or 300
-			--[[if not ok then
-				return ok, resc, uid
-			end
-			
-			local uuid = assert_socket("auth", socket.readline(fd), fd)
-			uuid = crypt.base64decode(uuid)
-			_, ok, uid =  pcall(login_handler, uuid)
-			ok = _ and ok
-			local resc = ok and 0 or -1--]]
 			
 			return ok, resc, uid
 		end
@@ -137,7 +127,6 @@ local function launch_slave(auth_handler, register_handler, login_handler)
 	end
 
 	skynet.dispatch("lua", function(_,_,...)
-		print("TTTTTTTTTTTTT1")
 		local ok, msg, len = pcall(auth_fd, ...)
 		if ok then
 			skynet.ret(msg,len)
@@ -150,9 +139,7 @@ end
 
 local function accept(conf, s, fd, addr)
 	-- call slave auth
-	print("TTTTTTTTTTTTT2")
 	local ok, code, data = skynet.call(s, "lua",  fd, addr)
-	print("*******", ok, code, data)
 	local msg = code .. "," .. (data or "")
 	
 	write("accept result", fd, crypt.base64encode(msg).."\n")
@@ -180,7 +167,6 @@ local function launch_master(conf)
 	local id = socket.listen(host, port)
 	socket.start(id , function(fd, addr)
 		local s = slave[balance]
-		print("TTTTTTTTTTTTT3", balance)
 		balance = balance + 1
 		if balance > #slave then
 			balance = 1
@@ -202,11 +188,9 @@ local function login(conf)
 		if loginmaster then
 			local auth_handler = assert(conf.auth_handler)
 			local register_handler = assert(conf.reg_handler)
-			local login_handler = assert(conf.login_handler)
 			launch_master = nil
 			conf = nil
-			launch_slave(auth_handler, register_handler, login_handler)
-			
+			launch_slave(auth_handler, register_handler)
 		else
 			launch_slave = nil
 			conf.auth_handler = nil
