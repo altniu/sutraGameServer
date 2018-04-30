@@ -100,21 +100,17 @@ local function launch_slave(auth_handler, register_handler, login_handler)
 			local _, ok, uid =  pcall(auth_handler,token)
 			ok = _ and ok
 			local resc = ok and 0 or 300
+			if not ok then
+				return ok, resc, uid
+			end
 			
-			return ok, resc, uid
-			
-		elseif opcode == "l" then
-			write("auth", fd, "")
-			print("user l")
 			local uuid = assert_socket("auth", socket.readline(fd), fd)
 			uuid = crypt.base64decode(uuid)
-			print("user l", uuid)
-			local _, ok, uid =  pcall(login_handler, uuid)
+			_, ok, uid =  pcall(login_handler, uuid)
 			ok = _ and ok
 			local resc = ok and 0 or 300
 			
 			return ok, resc, uid
-			
 		end
 		
 		return false, 404
