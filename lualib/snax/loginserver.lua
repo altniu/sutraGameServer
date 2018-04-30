@@ -137,7 +137,7 @@ local function launch_slave(auth_handler, register_handler, login_handler)
 	end
 
 	skynet.dispatch("lua", function(_,_,...)
-		log("TTTTTTTTTTTTT1")
+		print("TTTTTTTTTTTTT1")
 		local ok, msg, len = pcall(auth_fd, ...)
 		if ok then
 			skynet.ret(msg,len)
@@ -150,7 +150,7 @@ end
 
 local function accept(conf, s, fd, addr)
 	-- call slave auth
-	log("TTTTTTTTTTTTT2")
+	print("TTTTTTTTTTTTT2")
 	local ok, code, data = skynet.call(s, "lua",  fd, addr)
 	print("*******", ok, code, data)
 	local msg = code .. "," .. (data or "")
@@ -180,7 +180,7 @@ local function launch_master(conf)
 	local id = socket.listen(host, port)
 	socket.start(id , function(fd, addr)
 		local s = slave[balance]
-		log("TTTTTTTTTTTTT3", balance)
+		print("TTTTTTTTTTTTT3", balance)
 		balance = balance + 1
 		if balance > #slave then
 			balance = 1
