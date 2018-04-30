@@ -281,7 +281,7 @@ function REQUEST:checkLogin()
 		
 		
 	end
-	skynet.call("watchdog", "lua", "close")
+	REQUEST:quit()
 	return r
 end
 
