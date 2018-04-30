@@ -104,6 +104,7 @@ function CMD.logOut(uuid)
 end
 
 function CMD.checkLogin(uuid)
+	print("login.CMD.checkLogin", uuid, user_online[uuid] , user_cacheTable[uuid])
 	return user_online[uuid] or user_cacheTable[uuid]
 end
 
