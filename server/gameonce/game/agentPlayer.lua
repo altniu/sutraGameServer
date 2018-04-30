@@ -242,63 +242,6 @@ local function updateSongScore(scoreData)
 		skynet.call("db_service", "lua", "updateUserBaseData", pinfo.uuid, "jingtuGroup", pinfo.jingtuGroup)
 	end
 end
-
-function REQUEST:updateUserData()
-	print("REQUEST:updateUserData", pinfo.uuid, self.type, self.data)
-	if not self.isSync then
-		if self.ostime ~= pinfo.ostime then
-			return {errCode=1, desc="err ostime"}
-		end
-	end
-	
-	if "signLine" == self.type then
-		local month = pinfo.month
-		if self.isSync then
-			local t = getDayByTime(self.ostime)
-			month = t.month
-		end
-		updateSign(month, tonumber(self.data))
-	
-	elseif "censerNum" == self.type then
-		if not updateCenserNum(self.isSync) then
-			return {errCode=1, desc="today already senserd"}
-		end
-		
-	elseif "songScore" == self.type then
-		updateSongScore(self.data)
-	end
-	
-	return {errCode = 0, desc = ""}
-end
-
-
-function REQUEST:notifyUUID()
-	pinfo.uuid = self.uuid
-	CMD.sendNoteInfo("欢迎进入彩绘净土世界，请签到后上香，选取经文后开始，敲击木鱼完成功课。")
-
-end
-
-function REQUEST:totalPush()
-	local ret = {incenseLastTime=pinfo.incenseLastTime, sutraLastTime=pinfo.sutraLastTime, 
-			totalRank=skynet.call("rankService", "lua", "getTotalRank", self.uuid), 
-			signNum=pinfo.signNum, 
-			signRank=skynet.call("rankService", "lua", "getSignRank", self.uuid), 
-			censerNum=pinfo.censerNum, 
-			censerRank=skynet.call("rankService", "lua", "getCenserRank", self.uuid), 
-			sutraNum=pinfo.sutraNum,
-			sutraRank=skynet.call("rankService", "lua", "getSutraRank", self.uuid), 
-			jingtuGroup=pinfo.jingtuGroup, lotusNum=pinfo.lotusNum,fohaoMonthNum=pinfo.fohaoMonthNum,
-			signLine=pinfo.signLine, serverTime=pinfo.ostime, fohaoGroup=pinfo.fohaoGroup}
-	
-	printTable(ret)
-	
-	return ret
-end
-
-function REQUEST:quit()
-	skynet.call(WATCHDOG, "lua", "close", fd)
-end
-
 local function init()
 	pinfo.ostime = os.time()
 	print("totalpush pinfo.ostime")
@@ -392,6 +335,63 @@ local function init()
 			print("NEW MONTH: clear jingtuGroup from " .. oldJingtuGroup .. " to " .. pinfo.jingtuGroup)
 		end
 	end
+end
+
+
+function REQUEST:updateUserData()
+	print("REQUEST:updateUserData", pinfo.uuid, self.type, self.data)
+	if not self.isSync then
+		if self.ostime ~= pinfo.ostime then
+			return {errCode=1, desc="err ostime"}
+		end
+	end
+	
+	if "signLine" == self.type then
+		local month = pinfo.month
+		if self.isSync then
+			local t = getDayByTime(self.ostime)
+			month = t.month
+		end
+		updateSign(month, tonumber(self.data))
+	
+	elseif "censerNum" == self.type then
+		if not updateCenserNum(self.isSync) then
+			return {errCode=1, desc="today already senserd"}
+		end
+		
+	elseif "songScore" == self.type then
+		updateSongScore(self.data)
+	end
+	
+	return {errCode = 0, desc = ""}
+end
+
+
+function REQUEST:notifyUUID()
+	pinfo.uuid = self.uuid
+	CMD.sendNoteInfo("欢迎进入彩绘净土世界，请签到后上香，选取经文后开始，敲击木鱼完成功课。")
+	init()
+end
+
+function REQUEST:totalPush()
+	local ret = {incenseLastTime=pinfo.incenseLastTime, sutraLastTime=pinfo.sutraLastTime, 
+			totalRank=skynet.call("rankService", "lua", "getTotalRank", self.uuid), 
+			signNum=pinfo.signNum, 
+			signRank=skynet.call("rankService", "lua", "getSignRank", self.uuid), 
+			censerNum=pinfo.censerNum, 
+			censerRank=skynet.call("rankService", "lua", "getCenserRank", self.uuid), 
+			sutraNum=pinfo.sutraNum,
+			sutraRank=skynet.call("rankService", "lua", "getSutraRank", self.uuid), 
+			jingtuGroup=pinfo.jingtuGroup, lotusNum=pinfo.lotusNum,fohaoMonthNum=pinfo.fohaoMonthNum,
+			signLine=pinfo.signLine, serverTime=pinfo.ostime, fohaoGroup=pinfo.fohaoGroup}
+	
+	printTable(ret)
+	
+	return ret
+end
+
+function REQUEST:quit()
+	skynet.call(WATCHDOG, "lua", "close", fd)
 end
 
 local function request(name, args, response)
