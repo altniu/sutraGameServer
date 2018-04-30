@@ -481,7 +481,7 @@ end
 function CMD.disconnect()
 	-- todo: do something before exit
 	if pinfo.uuid ~= "" then
-		print("agentPlayer dissconnect". pinfo.uuid)
+		print("agentPlayer dissconnect", pinfo.uuid)
 		local r = skynet.call("loginserver", "lua", "logOut", pinfo.uuid)
 	end
 	
