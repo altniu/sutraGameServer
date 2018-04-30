@@ -108,7 +108,7 @@ local function launch_slave(auth_handler, register_handler, login_handler)
 			uuid = crypt.base64decode(uuid)
 			_, ok, uid =  pcall(login_handler, uuid)
 			ok = _ and ok
-			local resc = ok and 0 or 300
+			local resc = ok and 0 or -1
 			
 			return ok, resc, uid
 		end
