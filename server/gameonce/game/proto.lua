@@ -3,8 +3,6 @@ local sprotoparser = require "sprotoparser"
 local proto = {}
 
 
-
-
 proto.c2s = sprotoparser.parse [[
 
 .package {
@@ -36,7 +34,6 @@ totalPush 1 {
 		fohaoGroup 13 : string
 		
 		fohaoMonthNum 14 : integer
-		
 		first 15 : boolean
 	}
 }
@@ -46,6 +43,7 @@ updateUserData 2 {
 		type 0 	: string
 		data 1 	: string
 		ostime 2	: integer
+		isSync 3 : boolean
 	}
 	response {
 		errCode 0 : integer
@@ -76,5 +74,4 @@ sendNote 3 {
 }
 
 ]]
-
 return proto

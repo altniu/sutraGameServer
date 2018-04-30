@@ -130,126 +130,171 @@ local function updateFohaoRank()
 	updateTotalRank()
 end
 
+local function updateSign(month, signLine)
+	
+	pinfo.signLine = signLine
+	pinfo.signNum = pinfo.signNum + 1
+	
+	CMD.pushUserData("signNum", pinfo.signNum)
+	
+	skynet.call("db_service", "lua", "updateMonthCollect", pinfo.uuid, month ,"signLine", pinfo.signLine)
+	skynet.call("db_service", "lua", "updateUserUpdate", pinfo.uuid, "signNum", pinfo.signNum)
+	updateSignRank()
+end
+local function updateCenserNum(isSync)
+	local ser = getDayByTime(pinfo.ostime)
+	local last = getDayByTime(pinfo.incenseLastTime)
+	if isSync or (ser.year ~= last.year or ser.month ~= last.month or ser.day ~= last.day) then
+		pinfo.censerNum = pinfo.censerNum + 1
+		if not isSync then
+			pinfo.incenseLastTime = pinfo.ostime
+			CMD.pushUserData("incenseLastTime", pinfo.incenseLastTime)
+			skynet.call("db_service", "lua", "updateUserUpdate", pinfo.uuid, "incenseLastTime", pinfo.incenseLastTime)
+		end
+		
+		CMD.pushUserData("censerNum", pinfo.censerNum)
+		skynet.call("db_service", "lua", "updateUserUpdate", pinfo.uuid, "censerNum", pinfo.censerNum)		
+		updateCenserRank()
+		return true
+	else
+		return false
+	end
+end
+local function updateSongScore(scoreData)
+	local s = split(scoreData, ":")
+	local musicName = s[1]
+	local sc = split(s[2], ",")
+	local score = tonumber(sc[1]) or 0
+	local clickCount = tonumber(sc[2]) or 0
+	if not pinfo.musicScore[musicName] then
+		--return {errCode=1, desc="cant find the song ", musicName}
+		pinfo.musicScore[musicName] = 0
+	end
+	
+	--大于100下佛句就算敲成功		
+	if clickCount > 99 then
+		local ser = getDayByTime(pinfo.ostime)
+		local last = getDayByTime(pinfo.sutraLastTime)
+	
+		if ser.year ~= last.year or ser.month ~= last.month or ser.day ~= last.day then
+			pinfo.sutraNum = pinfo.sutraNum + 1
+			pinfo.sutraLastTime = pinfo.ostime
+			
+	
+			CMD.pushUserData("sutraNum", pinfo.sutraNum)
+			skynet.call("db_service", "lua", "updateUserUpdate", pinfo.uuid, "sutraNum", pinfo.sutraNum)
+			
+			CMD.pushUserData("sutraLastTime", pinfo.sutraLastTime)
+			skynet.call("db_service", "lua", "updateUserUpdate", pinfo.uuid, "sutraLastTime", pinfo.sutraLastTime)
+			
+			updateSutraRank()
+		end
+	end
+
+	--保存佛句,增加得分
+	local addScore = score
+	local lastScore = pinfo.musicScore[musicName]
+	pinfo.musicScore[musicName] = pinfo.musicScore[musicName] + addScore
+	pinfo.fohaoNum = pinfo.fohaoNum + addScore
+	pinfo.fohaoMonthNum = pinfo.fohaoMonthNum + addScore
+	local fh = ""
+	for k,v in pairs(pinfo.musicScore) do
+		fh = fh .. k .. ":" .. v .. ","
+	end
+	if string.len(fh) > 0 then
+		pinfo.scoreGroup = string.sub(fh, 1, -2)
+	end
+	CMD.pushUserData("fohaoGroup", pinfo.scoreGroup)
+	skynet.call("db_service", "lua", "updateMonthCollect", pinfo.uuid, pinfo.month, "fohaoGroup", pinfo.scoreGroup)
+	skynet.call("db_service", "lua", "updateUserUpdate", pinfo.uuid, "fohaoNum", pinfo.fohaoNum)
+	skynet.call("db_service", "lua", "updateMonthCollect", pinfo.uuid, pinfo.month, "fohaoMonthNum", pinfo.fohaoMonthNum)
+	CMD.pushUserData("fohaoMonthNum", pinfo.fohaoMonthNum)
+	updateFohaoRank()
+	
+	local totalMonthScore = 0
+	local songList, jingtu = skynet.call(game_root, "lua", "getJingtuListIdWithSongId", musicName)
+	if songList then
+		for k,v in pairs(songList) do
+			if pinfo.musicScore[v] then
+				totalMonthScore = totalMonthScore + pinfo.musicScore[v]
+			end
+		end
+	end
+	
+	--一个月内累计敲3万下佛号
+	print("totalMonthScore, fohaoMonthNum, addScore", totalMonthScore, pinfo.fohaoMonthNum, addScore)
+	if totalMonthScore > passedFohaoMathCount and totalMonthScore - addScore < passedFohaoMathCount then
+		local s1, s2 = string.find(pinfo.jingtuGroup, jingtu, 1, true)
+		if not s1 then
+			if pinfo.jingtuGroup == "" then
+				pinfo.jingtuGroup = jingtu .. ":1"
+			else
+				pinfo.jingtuGroup = pinfo.jingtuGroup .. "," .. jingtu .. ":1"
+			end
+		else
+			s1, s2 = string.find(pinfo.jingtuGroup, ":", s2+1, true)
+			local s3 = string.find(pinfo.jingtuGroup, ",", s2+1, true)
+			local jtNum = tonumber(string.find(s2+1, s3-1)) + 1
+			pinfo.jingtuGroup = string.sub(pinfo.jingtuGroup, 1, s2) .. jtNum .. string.sub(pinfo.jingtuGroup, s2+1, -1)
+		end			
+		CMD.pushUserData("jingtuGroup", pinfo.jingtuGroup)
+		
+		skynet.call("db_service", "lua", "updateUserBaseData", pinfo.uuid, "jingtuGroup", pinfo.jingtuGroup)
+	end
+end
+
 function REQUEST:updateUserData()
 	print("REQUEST:updateUserData", pinfo.uuid, self.type, self.data)
-	if self.ostime ~= pinfo.ostime then
-		return {errCode=1, desc="err ostime"}
+	if not self.isSync then
+		if self.ostime ~= pinfo.ostime then
+			return {errCode=1, desc="err ostime"}
+		end
 	end
 	
 	if "signLine" == self.type then
-		pinfo.signLine = tonumber(self.data)
-		pinfo.signNum = pinfo.signNum + 1
-		
-		CMD.pushUserData("signNum", pinfo.signNum)
-		
-		skynet.call("db_service", "lua", "updateMonthCollect", pinfo.uuid, pinfo.month ,"signLine", pinfo.signLine)
-		skynet.call("db_service", "lua", "updateUserUpdate", pinfo.uuid, "signNum", pinfo.signNum)
-		updateSignRank()
-		
-	end
-	if "censerNum" == self.type then
-		local ser = getDayByTime(pinfo.ostime)
-		local last = getDayByTime(pinfo.incenseLastTime)
-		if ser.year ~= last.year or ser.month ~= last.month or ser.day ~= last.day then
-			pinfo.censerNum = pinfo.censerNum + 1
-			pinfo.incenseLastTime = pinfo.ostime
-			
-			CMD.pushUserData("censerNum", pinfo.censerNum)
-			CMD.pushUserData("incenseLastTime", pinfo.incenseLastTime)
-			skynet.call("db_service", "lua", "updateUserUpdate", pinfo.uuid, "censerNum", pinfo.censerNum)
-			skynet.call("db_service", "lua", "updateUserUpdate", pinfo.uuid, "incenseLastTime", pinfo.incenseLastTime)
-			updateCenserRank()
-		else
+		local month = pinfo.month
+		if self.isSync then
+			local t = getDayByTime(self.ostime)
+			month = t.month
+		end
+		updateSign(month, tonumber(self.data))
+	
+	elseif "censerNum" == self.type then
+		if not updateCenserNum(self.isSync) then
 			return {errCode=1, desc="today already senserd"}
 		end
-	end
-	if "songScore" == self.type then
-		local s = split(self.data, ":")
-		local musicName = s[1]
-		local sc = split(s[2], ",")
-		local score = tonumber(sc[1]) or 0
-		local clickCount = tonumber(sc[2]) or 0
-		if not pinfo.musicScore[musicName] then
-			--return {errCode=1, desc="cant find the song ", musicName}
-			pinfo.musicScore[musicName] = 0
-		end
 		
-		--大于100下佛句就算敲成功		
-		if clickCount > 99 then
-			local ser = getDayByTime(pinfo.ostime)
-			local last = getDayByTime(pinfo.sutraLastTime)
-		
-			if ser.year ~= last.year or ser.month ~= last.month or ser.day ~= last.day then
-				pinfo.sutraNum = pinfo.sutraNum + 1
-				pinfo.sutraLastTime = pinfo.ostime
-				
-		
-				CMD.pushUserData("sutraNum", pinfo.sutraNum)
-				skynet.call("db_service", "lua", "updateUserUpdate", pinfo.uuid, "sutraNum", pinfo.sutraNum)
-				
-				CMD.pushUserData("sutraLastTime", pinfo.sutraLastTime)
-				skynet.call("db_service", "lua", "updateUserUpdate", pinfo.uuid, "sutraLastTime", pinfo.sutraLastTime)
-				
-				updateSutraRank()
-			end
-		end
-	
-		--保存佛句,增加得分
-		local addScore = score
-		local lastScore = pinfo.musicScore[musicName]
-		pinfo.musicScore[musicName] = pinfo.musicScore[musicName] + addScore
-		pinfo.fohaoNum = pinfo.fohaoNum + addScore
-		pinfo.fohaoMonthNum = pinfo.fohaoMonthNum + addScore
-		local fh = ""
-		for k,v in pairs(pinfo.musicScore) do
-			fh = fh .. k .. ":" .. v .. ","
-		end
-		if string.len(fh) > 0 then
-			pinfo.scoreGroup = string.sub(fh, 1, -2)
-		end
-		CMD.pushUserData("fohaoGroup", pinfo.scoreGroup)
-		skynet.call("db_service", "lua", "updateMonthCollect", pinfo.uuid, pinfo.month, "fohaoGroup", pinfo.scoreGroup)
-		skynet.call("db_service", "lua", "updateUserUpdate", pinfo.uuid, "fohaoNum", pinfo.fohaoNum)
-		skynet.call("db_service", "lua", "updateMonthCollect", pinfo.uuid, pinfo.month, "fohaoMonthNum", pinfo.fohaoMonthNum)
-		CMD.pushUserData("fohaoMonthNum", pinfo.fohaoMonthNum)
-		updateFohaoRank()
-		
-		local totalMonthScore = 0
-		local songList, jingtu = skynet.call(game_root, "lua", "getJingtuListIdWithSongId", musicName)
-		if songList then
-			for k,v in pairs(songList) do
-				if pinfo.musicScore[v] then
-					totalMonthScore = totalMonthScore + pinfo.musicScore[v]
-				end
-			end
-		end
-		
-		--一个月内累计敲3万下佛号
-		print("totalMonthScore, fohaoMonthNum, addScore", totalMonthScore, pinfo.fohaoMonthNum, addScore)
-		if totalMonthScore > passedFohaoMathCount and totalMonthScore - addScore < passedFohaoMathCount then
-			local s1, s2 = string.find(pinfo.jingtuGroup, jingtu, 1, true)
-			if not s1 then
-				if pinfo.jingtuGroup == "" then
-					pinfo.jingtuGroup = jingtu .. ":1"
-				else
-					pinfo.jingtuGroup = pinfo.jingtuGroup .. "," .. jingtu .. ":1"
-				end
-			else
-				s1, s2 = string.find(pinfo.jingtuGroup, ":", s2+1, true)
-				local s3 = string.find(pinfo.jingtuGroup, ",", s2+1, true)
-				local jtNum = tonumber(string.find(s2+1, s3-1)) + 1
-				pinfo.jingtuGroup = string.sub(pinfo.jingtuGroup, 1, s2) .. jtNum .. string.sub(pinfo.jingtuGroup, s2+1, -1)
-			end			
-			CMD.pushUserData("jingtuGroup", pinfo.jingtuGroup)
-			
-			skynet.call("db_service", "lua", "updateUserBaseData", pinfo.uuid, "jingtuGroup", pinfo.jingtuGroup)
-		end
+	elseif "songScore" == self.type then
+		updateSongScore(self.data)
 	end
 	
 	return {errCode = 0, desc = ""}
 end
 
+
+
 function REQUEST:totalPush()
+	local ret = {incenseLastTime=pinfo.incenseLastTime, sutraLastTime=pinfo.sutraLastTime, 
+			totalRank=skynet.call("rankService", "lua", "getTotalRank", self.uuid), 
+			signNum=pinfo.signNum, 
+			signRank=skynet.call("rankService", "lua", "getSignRank", self.uuid), 
+			censerNum=pinfo.censerNum, 
+			censerRank=skynet.call("rankService", "lua", "getCenserRank", self.uuid), 
+			sutraNum=pinfo.sutraNum,
+			sutraRank=skynet.call("rankService", "lua", "getSutraRank", self.uuid), 
+			jingtuGroup=pinfo.jingtuGroup, lotusNum=pinfo.lotusNum,fohaoMonthNum=pinfo.fohaoMonthNum,
+			signLine=pinfo.signLine, serverTime=pinfo.ostime, fohaoGroup=pinfo.fohaoGroup}
+	
+	printTable(ret)
+	
+	return ret
+end
+
+function REQUEST:quit()
+	skynet.call(WATCHDOG, "lua", "close", fd)
+end
+
+local function init()
 	pinfo.ostime = os.time()
 	print("totalpush pinfo.ostime")
 	local date = getDayByTime(pinfo.ostime )
@@ -342,26 +387,6 @@ function REQUEST:totalPush()
 			print("NEW MONTH: clear jingtuGroup from " .. oldJingtuGroup .. " to " .. pinfo.jingtuGroup)
 		end
 	end
-	
-	
-	local ret = {incenseLastTime=pinfo.incenseLastTime, sutraLastTime=pinfo.sutraLastTime, 
-			totalRank=skynet.call("rankService", "lua", "getTotalRank", self.uuid), 
-			signNum=pinfo.signNum, 
-			signRank=skynet.call("rankService", "lua", "getSignRank", self.uuid), 
-			censerNum=pinfo.censerNum, 
-			censerRank=skynet.call("rankService", "lua", "getCenserRank", self.uuid), 
-			sutraNum=pinfo.sutraNum,
-			sutraRank=skynet.call("rankService", "lua", "getSutraRank", self.uuid), 
-			jingtuGroup=pinfo.jingtuGroup, lotusNum=pinfo.lotusNum,fohaoMonthNum=pinfo.fohaoMonthNum,
-			signLine=pinfo.signLine, serverTime=pinfo.ostime, fohaoGroup=pinfo.fohaoGroup}
-	
-	printTable(ret)
-	
-	return ret
-end
-
-function REQUEST:quit()
-	skynet.call(WATCHDOG, "lua", "close", fd)
 end
 
 local function request(name, args, response)
@@ -437,6 +462,7 @@ function CMD.start(conf)
 	skynet.call(gate, "lua", "forward", fd)
 	
 	CMD.sendNoteInfo("欢迎进入彩绘净土世界，请签到后上香，选取经文后开始，敲击木鱼完成功课。")
+	init()
 end
 
 function CMD.disconnect()

@@ -256,7 +256,12 @@ function csvParse.LoadMusicRhythm(fileName)
 		ret[i].clickEffect = clickEffects[i]
 	end
 	
-    for i=9,#xx do
+	local zanfojieEffects = parseline(xx[9])
+	for i=1, #zanfojieEffects do
+		ret[i].zanfojie = zanfojieEffects[i]
+	end
+		
+    for i=10,#xx do
         local lineInfo = parseline(xx[i])
 		
 		for j=1, #lineInfo do
