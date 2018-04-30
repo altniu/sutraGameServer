@@ -187,13 +187,16 @@ local function login(conf)
 	local name = "." .. (conf.name or "login")
 	skynet.start(function()
 		local loginmaster = skynet.localname(name)
+		print("-------------------", loginmaster)
 		if loginmaster then
+			print("-------------------exist", loginmaster)
 			local auth_handler = assert(conf.auth_handler)
 			local register_handler = assert(conf.reg_handler)
 			launch_master = nil
 			conf = nil
 			launch_slave(auth_handler, register_handler)
 		else
+			print("-------------------unexist", loginmaster)
 			launch_slave = nil
 			conf.auth_handler = nil
 			conf.reg_handler = nil

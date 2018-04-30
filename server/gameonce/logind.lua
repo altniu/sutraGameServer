@@ -23,15 +23,10 @@ function server.auth_handler(token)
 	print("server.auth_handler.token:" .. token)
 	-- the token is base64(user)@base64(server):base64(password)
 	local uuid, phone = token:match("([^@]+)@([^:]+)")
-	print("uuidA", uuid)
-	print("phoneA", phone)
 	uuid = crypt.base64decode(uuid)
 	phone = crypt.base64decode(phone)
-	print("uuidB", uuid)
-	print("phoneB", phone)
 	
 	if user_cacheTable[uuid] then
-		print("user login, uuid = " .. uuid)
 		return true
 	end
 	
@@ -56,22 +51,22 @@ function server.reg_handler(userdata)
 	return r, code
 end
 
-function server.login_handler(server, uid, secret)
-	print(string.format("%s@%s is login, secret is %s", uid, server, crypt.hexencode(secret)))
+function server.login_handler(server, uuid, secret)
+	print(string.format("%s@%s is login, secret is %s", uuid, server, crypt.hexencode(secret)))
 	--local gameserver = assert(server_list[server], "Unknown server")
 	-- only one can login, because disallow multilogin
-	local last = user_online[uid]
-	datacenter.set("user_online", uid, true)
+	local last = user_online[uuid]
+	datacenter.set("user_online", uuid, true)
 
 	if last then
-		--skynet.call(last.address, "lua", "kick", uid, last.subid)
+		--skynet.call(last.address, "lua", "kick", uuid, last.subid)
 	end
-	if user_online[uid] then
-		--error(string.format("user %s is already online", uid))
+	if user_online[uuid] then
+		--error(string.format("user %s is already online", uuid))
 	end
-	return uid
-	--local subid = tostring(skynet.call(gameserver, "lua", "login", uid, secret))
-	--user_online[uid] = { address = gameserver, subid = subid , server = server}
+	return uuid
+	--local subid = tostring(skynet.call(gameserver, "lua", "login", uuid, secret))
+	--user_online[uuid] = { address = gameserver, subid = subid , server = server}
 	--return subid
 end
 function server.registered_handler()
