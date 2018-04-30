@@ -32,10 +32,10 @@ function server.auth_handler(token)
 	
 	local data = skynet.call("db_service", "lua", "getUserBaseData", uuid)
 	if data then
-		print("user login, uuid = " .. uuid)
+		print("user auth, uuid = " .. uuid)
 	
 	else
-		print("new user login, uuid = " .. uuid .. ",size=" .. string.len(uuid) .. ", phone = " .. phone)
+		print("new user auth, uuid = " .. uuid .. ",size=" .. string.len(uuid) .. ", phone = " .. phone)
 		skynet.call("db_service", "lua", "register", uuid, phone)
 		skynet.call("rankService", "lua", "addNewUUID", uuid)
 	end
