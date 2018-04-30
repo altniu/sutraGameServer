@@ -250,7 +250,7 @@ local function init()
 
 	local r 
 
-	r = skynet.call("db_service", "lua", "getUserBaseData", self.uuid)	
+	r = skynet.call("db_service", "lua", "getUserBaseData", pinfo.uuid)	
 	if r then
 		pinfo.uuid = r.uuid
 		pinfo.registerTime = r.registerTime
@@ -259,7 +259,7 @@ local function init()
 		pinfo.phoneType = r.phoneType
 	end
 	
-	r = skynet.call("db_service", "lua", "getUserMonthCollect", self.uuid, date.month)
+	r = skynet.call("db_service", "lua", "getUserMonthCollect", pinfo.uuid, date.month)
 	print("getUserMonthCollect data info")
 	printTable(r)
 	if r then
@@ -277,7 +277,7 @@ local function init()
 		end
 	end
 	
-	r = skynet.call("db_service", "lua", "getUserUpdateData", self.uuid)
+	r = skynet.call("db_service", "lua", "getUserUpdateData", pinfo.uuid)
 	if r then
 		pinfo.signNum = r.signNum
 		pinfo.censerNum = r.censerNum
@@ -298,7 +298,7 @@ local function init()
 		pinfo.loginLastTime = pinfo.ostime
 		skynet.call("db_service", "lua", "updateUserUpdate", pinfo.uuid, "loginLastTime", pinfo.loginLastTime)
 		
-		r = skynet.call("db_service", "lua", "getUserMonthCollect", self.uuid, lastLoginDate.month)
+		r = skynet.call("db_service", "lua", "getUserMonthCollect", pinfo.uuid, lastLoginDate.month)
 		if r then
 			local songlist = skynet.call(game_root, "lua", "getSongList")
 			
