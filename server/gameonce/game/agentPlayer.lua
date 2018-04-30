@@ -274,7 +274,7 @@ end
 
 function REQUEST:checkLogin()
 	pinfo.uuid = self.uuid
-	local r = skynet.call("loginserver", "lua", "checkLogin", self.uuid)
+	local r = skynet.call(".login_master", "lua", "checkLogin", self.uuid)
 	
 	print("88888888888", self.uuid, r)
 	if not r then
@@ -482,7 +482,7 @@ function CMD.disconnect()
 	-- todo: do something before exit
 	if pinfo.uuid ~= "" then
 		print("agentPlayer dissconnect", pinfo.uuid)
-		local r = skynet.call("loginserver", "lua", "logOut", pinfo.uuid)
+		local r = skynet.call(".login_master", "lua", "logOut", pinfo.uuid)
 	end
 	
 	--检查是否跨月
