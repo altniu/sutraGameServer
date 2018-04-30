@@ -55,9 +55,6 @@ notifyUUID 3 {
 	request {
 		uuid 0 : string
 	}
-	response {
-		ret 0 : boolean
-	}
 }
 
 ]]

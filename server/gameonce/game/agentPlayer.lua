@@ -275,7 +275,7 @@ end
 function REQUEST:notifyUUID()
 	pinfo.uuid = self.uuid
 	CMD.sendNoteInfo("欢迎进入彩绘净土世界，请签到后上香，选取经文后开始，敲击木鱼完成功课。")
-	return true
+
 end
 
 function REQUEST:totalPush()
