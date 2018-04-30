@@ -54,7 +54,7 @@ function server.reg_handler(userdata)
 end
 
 function server.login_handler(uuid)
-	print(string.format("%s is login", uuid))
+	
 	--print(string.format("%s is login", uuid, server, crypt.hexencode(secret)))
 	--local gameserver = assert(server_list[server], "Unknown server")
 	-- only one can login, because disallow multilogin
@@ -67,7 +67,8 @@ function server.login_handler(uuid)
 	--datacenter.set("user_online", uuid, true)
 	
 	user_online[uuid] = true
-	
+	print(string.format("%s is login", uuid))
+	print(user_online)
 	if last then
 		--skynet.call(last.address, "lua", "kick", uuid, last.subid)
 	end
@@ -105,6 +106,7 @@ end
 
 function CMD.checkLogin(uuid)
 	print("login.CMD.checkLogin", uuid, user_online[uuid] , user_cacheTable[uuid])
+	print(user_online)
 	return user_online[uuid] or user_cacheTable[uuid]
 end
 
