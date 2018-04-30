@@ -272,18 +272,10 @@ function REQUEST:updateUserData()
 end
 
 
-function REQUEST:checkLogin()
+function REQUEST:notifyUUID()
 	pinfo.uuid = self.uuid
-	local r = skynet.call(".login_master", "lua", "checkLogin", self.uuid)
-	
-	print("88888888888", self.uuid, r)
-	if not r then
-		
-		
-		
-	end
-	REQUEST:quit()
-	return r
+	CMD.sendNoteInfo("欢迎进入彩绘净土世界，请签到后上香，选取经文后开始，敲击木鱼完成功课。")
+	return true
 end
 
 function REQUEST:totalPush()
@@ -473,20 +465,15 @@ function CMD.start(conf)
 	end)
   
 	skynet.call(gate, "lua", "forward", fd)
-	
-	CMD.sendNoteInfo("欢迎进入彩绘净土世界，请签到后上香，选取经文后开始，敲击木鱼完成功课。")
-	
 end
 
 function CMD.disconnect()
 	-- todo: do something before exit
-	if pinfo.uuid ~= "" then
-		print("agentPlayer dissconnect", pinfo.uuid)
-		local r = skynet.call(".login_master", "lua", "logOut", pinfo.uuid)
-	end
+	--[[if pinfo.uuid ~= "" then
+		local r = skynet.call("loginserver", "lua", "logOut", pinfo.uuid)
+	end--]]
 	
-	--检查是否跨月
-	--skynet.exit()
+	
 end
 
 skynet.start(function()

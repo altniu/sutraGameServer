@@ -1,7 +1,7 @@
 local login = require "snax.loginserver"
 local crypt = require "skynet.crypt"
 local skynet = require "skynet"
---local datacenter = require "skynet.datacenter"
+local datacenter = require "skynet.datacenter"
 require "functions"
 
 require "skynet.manager"
@@ -14,10 +14,10 @@ local server = {
 	name = "login_master",
 }
 
+UUIDCACHE = "uuid_cache_list"
 local server_list = {}
 local user_online = {}
 local user_cacheTable = {}
---datacenter.set("user_online_list", uid, true)
 
 function server.auth_handler(token)
 	print("server.auth_handler.token:" .. token)
@@ -25,24 +25,22 @@ function server.auth_handler(token)
 	local uuid, phone = token:match("([^@]+)@([^:]+)")
 	uuid = crypt.base64decode(uuid)
 	phone = crypt.base64decode(phone)
-	
-	if user_cacheTable[uuid] then
+		
+	ret = datacenter.get(UUIDCACHE, uuid)
+	if ret then
 		return true
 	end
 	
 	local data = skynet.call("db_service", "lua", "getUserBaseData", uuid)
 	if data then
 		print("user auth, uuid = " .. uuid)
-	
+		
 	else
 		print("new user auth, uuid = " .. uuid .. ",size=" .. string.len(uuid) .. ", phone = " .. phone)
 		skynet.call("db_service", "lua", "register", uuid, phone)
 		skynet.call("rankService", "lua", "addNewUUID", uuid)
 	end
-	user_cacheTable[uuid] = true
-	
-	server.login_handler(uuid)
-	
+	datacenter.set(UUIDCACHE, uuid, true)
 	return true
 end
 
@@ -95,19 +93,19 @@ function CMD.register_gate(server, address)
 end
 
 function CMD.logOut(uuid)
-	print("logind: logout uuid="..uuid)
+	--[[print("logind: logout uuid="..uuid)
 	local u = user_online[uuid]
 	if u then
 		print(string.format("%s@%s is logout", uuid, u.server))
 		user_online[uuid] = nil
 		--datacenter.set("user_online", uuid, nil)
-	end
+	end--]]
 end
 
 function CMD.checkLogin(uuid)
-	print("login.CMD.checkLogin", uuid, user_online[uuid] , user_cacheTable[uuid])
+	--[[print("login.CMD.checkLogin", uuid, user_online[uuid] , user_cacheTable[uuid])
 	print(user_online)
-	return user_online[uuid] or user_cacheTable[uuid]
+	return user_online[uuid] or user_cacheTable[uuid]--]]
 end
 
 function server.command_handler(command, ...)

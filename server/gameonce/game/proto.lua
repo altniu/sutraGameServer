@@ -51,7 +51,7 @@ updateUserData 2 {
 	}
 }
 
-checkLogin 3 {
+notifyUUID 3 {
 	request {
 		uuid 0 : string
 	}
