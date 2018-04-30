@@ -273,6 +273,7 @@ end
 
 
 function REQUEST:checkLogin()
+	print("checkLogin", self.uuid)
 	local r = skynet.call("loginserver", "lua", "checkLogin", self.uuid)
 	pinfo.uuid = self.uuid
 	print("88888888888", self.uuid, ret)
