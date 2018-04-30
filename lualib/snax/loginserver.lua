@@ -183,6 +183,7 @@ end
 
 local function login(conf)
 	local name = "." .. (conf.name or "login")
+	print("loginserver.login")
 	skynet.start(function()
 		local loginmaster = skynet.localname(name)
 		if loginmaster then
