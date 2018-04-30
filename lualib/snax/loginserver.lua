@@ -47,7 +47,7 @@ local function write(service, fd, text)
 	assert_socket(service, socket.write(fd, text), fd)
 end
 
-local function launch_slave(auth_handler, register_handler)
+local function launch_slave(auth_handler, register_handler, login_handler)
 	local function auth(fd, addr)
 		-- set socket buffer limit (8K)
 		-- If the attacker send large package, close the socket
@@ -61,7 +61,7 @@ local function launch_slave(auth_handler, register_handler)
 			local _, ok, code =  pcall(register_handler,crypt.base64decode(regmsg))
 			return _ and ok, code
 			
-		elseif opcode == "l" then
+		elseif opcode == "a" then
 			local challenge = crypt.randomkey()
 			--print("challenge", crypt.base64encode(challenge))
 			write("auth", fd, crypt.base64encode(challenge).."\n")
@@ -102,6 +102,19 @@ local function launch_slave(auth_handler, register_handler)
 			local resc = ok and 0 or 300
 			
 			return ok, resc, uid
+			
+		elseif opcode == "l" then
+			write("auth", fd, "")
+			
+			local uuid = assert_socket("auth", socket.readline(fd), fd)
+			uuid = crypt.base64decode(uuid)
+			
+			local _, ok, uid =  pcall(login_handler, uuid)
+			ok = _ and ok
+			local resc = ok and 0 or 300
+			
+			return ok, resc, uid
+			
 		end
 		
 		return false, 404
@@ -187,16 +200,15 @@ local function login(conf)
 	local name = "." .. (conf.name or "login")
 	skynet.start(function()
 		local loginmaster = skynet.localname(name)
-		print("-------------------", loginmaster)
 		if loginmaster then
-			print("-------------------exist", loginmaster)
 			local auth_handler = assert(conf.auth_handler)
 			local register_handler = assert(conf.reg_handler)
+			local login_handler = assert(conf.login_handler)
 			launch_master = nil
 			conf = nil
-			launch_slave(auth_handler, register_handler)
+			launch_slave(auth_handler, register_handler, login_handler)
+			
 		else
-			print("-------------------unexist", loginmaster)
 			launch_slave = nil
 			conf.auth_handler = nil
 			conf.reg_handler = nil

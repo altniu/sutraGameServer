@@ -51,20 +51,28 @@ function server.reg_handler(userdata)
 	return r, code
 end
 
-function server.login_handler(server, uuid, secret)
-	print(string.format("%s@%s is login, secret is %s", uuid, server, crypt.hexencode(secret)))
+function server.login_handler(uuid)
+	print(string.format("%s is login", uuid))
+	--print(string.format("%s is login", uuid, server, crypt.hexencode(secret)))
 	--local gameserver = assert(server_list[server], "Unknown server")
 	-- only one can login, because disallow multilogin
+	
+	if not user_cacheTable[uuid] then
+		return false
+	end
+	
 	local last = user_online[uuid]
-	datacenter.set("user_online", uuid, true)
-
+	--datacenter.set("user_online", uuid, true)
+	
+	user_online[uuid] = true
+	
 	if last then
 		--skynet.call(last.address, "lua", "kick", uuid, last.subid)
 	end
 	if user_online[uuid] then
 		--error(string.format("user %s is already online", uuid))
 	end
-	return uuid
+	return true
 	--local subid = tostring(skynet.call(gameserver, "lua", "login", uuid, secret))
 	--user_online[uuid] = { address = gameserver, subid = subid , server = server}
 	--return subid
@@ -89,7 +97,7 @@ function CMD.logOut(uuid)
 	if u then
 		print(string.format("%s@%s is logout", uuid, u.server))
 		user_online[uuid] = nil
-		datacenter.set("user_online", uuid, nil)
+		--datacenter.set("user_online", uuid, nil)
 	end
 end
 
