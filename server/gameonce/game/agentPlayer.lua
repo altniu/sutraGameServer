@@ -369,7 +369,7 @@ end
 
 function REQUEST:notifyUUID()
 	pinfo.uuid = self.uuid
-	CMD.sendNoteInfo("欢迎进入彩绘净土世界，请签到后上香，选取经文后开始，敲击木鱼完成功课。")
+	CMD.sendNoteInfo("歡迎進入彩繪凈土世界，請簽到後上香，選取經文後開始，敲擊木魚完成功課。詢問聯系請電話：65-96620296")
 	init()
 end
 
