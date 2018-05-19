@@ -47,5 +47,5 @@ create table monthCollect
 	signLine int not null,
 	month int not null primary key,
 	fohaoGroup varchar(64),
-	fohaoMonthNum int not null,
+	fohaoMonthNum int not null
 	);
