@@ -43,9 +43,10 @@ create table userUpdateData
 
 create table monthCollect
 	(
-	uuid char(64) not null  primary key,
+	uuid char(64) not null,
 	signLine int not null,
 	month int not null,
 	fohaoGroup varchar(64),
-	fohaoMonthNum int not null
+	fohaoMonthNum int not null,
+	primary key(uuid,month)
 	);
