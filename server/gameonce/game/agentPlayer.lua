@@ -32,12 +32,10 @@ local pinfo = {
 	jingtuGroup = "",
 	lotusNum = 0,
 	fohaoNum = 0,			--佛号总数
-	fohaoMonthNum = 0,		--每月佛号总计
 	phoneType = "",
 	signLine = 0,
 	month = 0,
 	musicScore = {},
-	scoreGroup = "",
 	first = false,
 	ostime = 0,
 	incenseLastTime = 0,
@@ -196,19 +194,16 @@ local function updateSongScore(scoreData)
 	local lastScore = pinfo.musicScore[musicName]
 	pinfo.musicScore[musicName] = pinfo.musicScore[musicName] + addScore
 	pinfo.fohaoNum = pinfo.fohaoNum + addScore
-	pinfo.fohaoMonthNum = pinfo.fohaoMonthNum + addScore
-	local fh = ""
+	local fohaoGroup = ""
 	for k,v in pairs(pinfo.musicScore) do
-		fh = fh .. k .. ":" .. v .. ","
+		fohaoGroup = fohaoGroup .. k .. ":" .. v .. ","
 	end
-	if string.len(fh) > 0 then
-		pinfo.scoreGroup = string.sub(fh, 1, -2)
+	if string.len(fohaoGroup) > 0 then
+		fohaoGroup = string.sub(fohaoGroup, 1, -2)
 	end
-	CMD.pushUserData("fohaoGroup", pinfo.scoreGroup)
-	skynet.call("db_service", "lua", "updateMonthCollect", pinfo.uuid, pinfo.month, "fohaoGroup", pinfo.scoreGroup)
+	CMD.pushUserData("fohaoGroup", fohaoGroup)
+	skynet.call("db_service", "lua", "updateMonthCollect", pinfo.uuid, pinfo.month, "fohaoGroup", fohaoGroup)
 	skynet.call("db_service", "lua", "updateUserUpdate", pinfo.uuid, "fohaoNum", pinfo.fohaoNum)
-	skynet.call("db_service", "lua", "updateMonthCollect", pinfo.uuid, pinfo.month, "fohaoMonthNum", pinfo.fohaoMonthNum)
-	CMD.pushUserData("fohaoMonthNum", pinfo.fohaoMonthNum)
 	updateFohaoRank()
 	
 	local totalMonthScore = 0
@@ -222,7 +217,6 @@ local function updateSongScore(scoreData)
 	end
 	
 	--一个月内累计敲3万下佛号
-	print("totalMonthScore, fohaoMonthNum, addScore", totalMonthScore, pinfo.fohaoMonthNum, addScore)
 	if totalMonthScore > passedFohaoMathCount and totalMonthScore - addScore < passedFohaoMathCount then
 		local s1, s2 = string.find(pinfo.jingtuGroup, jingtu, 1, true)
 		if not s1 then
@@ -263,11 +257,9 @@ local function init()
 	print("getUserMonthCollect data info")
 	printTable(r)
 	if r then
-		--signLine, mouth, fohaoGroup, fohaoMonthNum
+		--signLine, mouth, fohaoGroup
 		pinfo.signLine = r.signLine
 		pinfo.month = r.month
-		pinfo.scoreGroup = r.fohaoGroup
-		pinfo.fohaoMonthNum = r.fohaoMonthNum
 		local scores = split(r.fohaoGroup, ",")
 		for k,v in pairs(scores) do
 			local s = split(v, ":")
@@ -374,6 +366,14 @@ function REQUEST:notifyUUID()
 end
 
 function REQUEST:totalPush()
+	local fohaoGroup = ""
+	for k,v in pairs(pinfo.musicScore) do
+		fohaoGroup = fohaoGroup .. k .. ":" .. v .. ","
+	end
+	if string.len(fohaoGroup) > 0 then
+		fohaoGroup = string.sub(fohaoGroup, 1, -2)
+	end
+	
 	local ret = {incenseLastTime=pinfo.incenseLastTime, sutraLastTime=pinfo.sutraLastTime, 
 			totalRank=skynet.call("rankService", "lua", "getTotalRank", self.uuid), 
 			signNum=pinfo.signNum, 
@@ -382,8 +382,8 @@ function REQUEST:totalPush()
 			censerRank=skynet.call("rankService", "lua", "getCenserRank", self.uuid), 
 			sutraNum=pinfo.sutraNum,
 			sutraRank=skynet.call("rankService", "lua", "getSutraRank", self.uuid), 
-			jingtuGroup=pinfo.jingtuGroup, lotusNum=pinfo.lotusNum,fohaoMonthNum=pinfo.fohaoMonthNum,
-			signLine=pinfo.signLine, serverTime=pinfo.ostime, fohaoGroup=pinfo.fohaoGroup}
+			jingtuGroup=pinfo.jingtuGroup, lotusNum=pinfo.lotusNum,fohaoMonthNum=0,
+			signLine=pinfo.signLine, serverTime=pinfo.ostime, fohaoGroup=fohaoGroup}
 	
 	printTable(ret)
 	

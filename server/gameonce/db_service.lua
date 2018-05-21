@@ -155,10 +155,10 @@ function CMD.getUserMonthCollect(uuid, month)
 
 	--月份不存在，新增一条数据
 	if #res == 0 then
-		sql = string.format("insert into %s(uuid, signLine, month, fohaoGroup, fohaoMonthNum) values('%s',%d, %d, '%s', %d);", 
-				tbl_monthCollect, uuid, 0, month, "", 0)
+		sql = string.format("insert into %s(uuid, signLine, month, fohaoGroup) values('%s',%d, %d, '%s');", 
+				tbl_monthCollect, uuid, 0, month, "")
 		res = db:query(sql)
-		res = {uuid=uuid, signLine=0, month=month, fohaoGroup="", fohaoMonthNum=0}
+		res = {uuid=uuid, signLine=0, month=month, fohaoGroup=""}
 		return res
 	end
 	
@@ -211,8 +211,8 @@ function CMD.register(uuid, phone, userData)
 	
 	local dates = os.date("*t", t)
 	--uuid, signLine, mouth, fohaoGroup
-	sql = string.format("insert into %s(uuid, signLine, month, fohaoGroup, fohaoMonthNum) values('%s',%d, %d, '%s', %d);", 
-				tbl_monthCollect, uuid, 0, dates.month, "", 0)
+	sql = string.format("insert into %s(uuid, signLine, month, fohaoGroup) values('%s',%d, %d, '%s');", 
+				tbl_monthCollect, uuid, 0, dates.month, "")
 	res = db:query(sql)
 	assert(res, serviceName .. ",register uuid = " .. uuid .. " error "  .. tbl_monthCollect)
 	
