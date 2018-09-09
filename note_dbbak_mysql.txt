@@ -1,0 +1,6 @@
+#两个root是账号和密码
+mysqldump -u root -proot sutraGameDB | gzip -> dbbak.sql.gz
+
+https://jingyan.baidu.com/album/bad08e1ef1fcf409c9512179.html?picindex=7
+
+增加定时任务
